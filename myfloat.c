@@ -45,8 +45,13 @@ int isNaN (uni a) {
   return (a.Float.exp == 255) && (a.Float.frac != 0);
 }
 
+int isDenormal(uni a) {
+  return (a.Float.exp==0) ? 1 : 0;
+}
+
+
 int isZero(uni a) {
-  return (a.Float.exp == 0);
+  return (a.Float.exp == 0) && (a.Float.frac == 0);
 }
 
 int isInf (uni a) {

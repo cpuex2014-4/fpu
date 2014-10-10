@@ -28,6 +28,8 @@ int isNaN (uni );
 
 int isZero(uni );
 
+int isDenormal(uni );
+
 int isInf (uni );
 
 #endif
