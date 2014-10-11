@@ -14,7 +14,7 @@ int uni_abscomp (uni a, uni b) {
 
 void u_print_bits (unsigned a) {
   int i;
-  for(i=32;i>=0;i--) {
+  for(i=31;i>=0;i--) {
     printf("%d",((a>>i)&1?1:0));
   }
   putchar('\n');
@@ -35,7 +35,7 @@ void print_bits (uni a) {
 }
 void u_print_bits_with (unsigned a, char *c) {
   int i;
-  for(i=32;i>=0;i--) {
+  for(i=31;i>=0;i--) {
     printf("%d",((a>>i)&1?1:0));
   }
   puts(c);
