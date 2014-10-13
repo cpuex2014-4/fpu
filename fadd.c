@@ -51,12 +51,12 @@ uint32_t fadd (uint32_t a1, uint32_t b1) {
 
 
   // bit shift
-  unsigned d = a.Float.exp - b.Float.exp;
-  unsigned na = (1 << (23 + 3))|(a.Float.frac << 3);
-  unsigned nb = (1 << (23 + 3))|(b.Float.frac << 3);
+  uint32_t d = a.Float.exp - b.Float.exp;
+  uint32_t na = (1 << (23 + 3))|(a.Float.frac << 3);
+  uint32_t nb = (1 << (23 + 3))|(b.Float.frac << 3);
 
   int flg = 0;
-  unsigned i;
+  uint32_t i;
 
   for (i = 0; i < d; i++) {
     flg |= nb&1;
@@ -66,7 +66,7 @@ uint32_t fadd (uint32_t a1, uint32_t b1) {
   nb *= (a.Float.sign == b.Float.sign)? 1:-1;
 
   // sum
-  unsigned frac = na + nb;
+  uint32_t frac = na + nb;
 
   int t = (int) log2(frac);
 
@@ -95,10 +95,10 @@ uint32_t fadd (uint32_t a1, uint32_t b1) {
   }
 
 
-  unsigned ulp   = 1 & (frac>>3);
-  unsigned guard = 1 & (frac>>2);
-  unsigned round = 1 & (frac>>1);
-  unsigned stick = 1 & frac;
+  uint32_t ulp   = 1 & (frac>>3);
+  uint32_t guard = 1 & (frac>>2);
+  uint32_t round = 1 & (frac>>1);
+  uint32_t stick = 1 & frac;
 
 
   if (guard & (ulp|round|stick)) {

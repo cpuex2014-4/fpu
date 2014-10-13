@@ -32,15 +32,15 @@ uint32_t fmul (uint32_t a1, uint32_t b1) {
 
 
   //Aの仮数部に1bitを足した値を 上位13bitと下位11bitにわける
-  unsigned aFrac = a.Float.frac | (1<<23);
-  unsigned aHigh = aFrac>>11;             //上位13bit
-  unsigned aLow = (~(~0 << 11)) & aFrac;  //下位11bit
+  uint32_t aFrac = a.Float.frac | (1<<23);
+  uint32_t aHigh = aFrac>>11;             //上位13bit
+  uint32_t aLow = (~(~0 << 11)) & aFrac;  //下位11bit
 
-  unsigned bFrac = b.Float.frac | (1<<23);
-  unsigned bHigh = bFrac>>11;
-  unsigned bLow = (~(~0 << 11)) & bFrac;
+  uint32_t bFrac = b.Float.frac | (1<<23);
+  uint32_t bHigh = bFrac>>11;
+  uint32_t bLow = (~(~0 << 11)) & bFrac;
 
-  unsigned mulFrac = aHigh * bHigh + (aHigh * bLow >> 11) + (aLow * bHigh >> 11) + 2;
+  uint32_t mulFrac = aHigh * bHigh + (aHigh * bLow >> 11) + (aLow * bHigh >> 11) + 2;
 
 
   int exp = a.Float.exp + b.Float.exp - 127;
