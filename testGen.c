@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "myfloat.h"
+#include "fpu.h"
 
 uni randUni(){
 

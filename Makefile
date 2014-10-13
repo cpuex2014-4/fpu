@@ -1,16 +1,20 @@
 CC   = gcc
-CFLG = -lm -Wall
-OBJ  = myfloat.o
+CFLAGS = -lm -Wall
+TARGET1 = fpuTest
+TARGET2 = testGen
+OBJS1  = float.o fadd.o fmul.o fpuTest.o
+OBJS2  = float.o testGen.o
 
-all: FADD FMUL TESTGEN
-FADD: fadd.c $(OBJ)
-	$(CC) -o fadd $(OBJ) fadd.c $(CFLG)
-FMUL: fmul.c
-	$(CC) -o fmul $(OBJ) fmul.c $(CFLG)
-TESTGEN: testGen.c
-	$(CC) -o testGen $(OBJ) testGen.c $(CFLG)
-MYFLOAT:
-	gcc -c myfloat.c
+all: $(TARGET1) $(TARGET2)
+
+$(TARGET1): $(OBJS1)
+	$(CC) -o $(TARGET1) $(OBJS1) $(CFLAGS)
+
+$(TARGET2): $(OBJS2)
+	$(CC) -o $(TARGET2) $(OBJS2) $(CFLAGS)
+
+.c.o:
+	$(CC) -c $< $(CFLAGS)
 
 clean:
-	rm -f fadd fmul testGen *~ *.o
+	rm -f $(TARGET1) $(TARGET2) *~ *.o

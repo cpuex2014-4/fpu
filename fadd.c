@@ -3,24 +3,35 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdint.h>
-#include "myfloat.h"
+#include "fpu.h"
+#define CONST_ZERO 0
+#define CONST_MINUS_ZERO 0x80000000
+#define CONST_NAN ~0
+#define CONST_INF   0x7f800000
+#define CONST_MINUS_INF 0xff800000
+
 
 uint32_t ops (uni a, uni b) {
 
   if (isNaN (a)) {
-    return ~0;
+    return CONST_NAN;
   } else if (isInf(a) && isInf(b)
              && (a.Float.sign ^ b.Float.sign)) {
-    return ~0;
+    return CONST_NAN;
   } else if (isInf(a)) {
-    return a.u;
-  } else if (isInf(b)){
-    return b.u;
+
+    return (a.Float.sign) ? CONST_MINUS_INF : CONST_INF;
+
+  } else if (isInf(b)) {
+
+    return (b.Float.sign) ? CONST_MINUS_INF : CONST_INF;
+
   } else if (isZero(a) && isZero(b)) {
+
     if (a.Float.sign & b.Float.sign) {
-      return (1<<31);
+      return CONST_MINUS_ZERO;
     } else {
-      return 0;
+      return CONST_ZERO;
     }
   } else {
     if(isZero(a)) {
@@ -29,7 +40,7 @@ uint32_t ops (uni a, uni b) {
       return a.u;
     }
   }
-
+  fprintf(stderr, "error: %08x %08x\n", a.u , b.u);
   assert(0);
 }
 
@@ -37,11 +48,25 @@ uint32_t fadd (uint32_t a1, uint32_t b1) {
   uni a, b;
   uni ans;
   a.u = a1; b.u = b1;
+
   //compare abs
   if (uni_abscomp (a, b) < 0) { // swap
     uni t;
     t = a; a = b; b = t;
   }
+
+  if (isDenormal(a)) {
+    assert(isDenormal(b)); //bの方が絶対値が小さいため
+
+		//非正規化数同士の和は0 or -0を返す仕様
+		return (a.Float.sign) ? CONST_MINUS_ZERO : CONST_ZERO;
+  }
+
+  if (isDenormal(b)) {
+    b.u = (b.Float.sign) ? CONST_MINUS_ZERO : CONST_ZERO;
+  }
+
+
 
   // ops
   if (a.Float.exp == 0 || a.Float.exp == 255 ||
@@ -118,18 +143,58 @@ uint32_t fadd (uint32_t a1, uint32_t b1) {
   return ans.u;
 }
 
+int faddCheck (uni a, uni b) {
+  uni ans, result;
+  ans.f = a.f + b.f;
+  result.u = fadd(a.u, b.u);
 
-int main () {
-  uni a, b, ans;
-
-  while(scanf("%x %x", &a.u, &b.u) == 2) {
-
-
-    ans.u = fadd(a.u, b.u);
-
-
-    printf("%08x\n", ans.u);
-
+  if (isNaN(ans) && isNaN(result)) {
+    return 1;
   }
-  return 0;
+
+  if (isInf(ans) && isInf(result)) {
+    if (ans.Float.sign != result.Float.sign) {
+      return 0;
+    }
+    return 1;
+  }
+
+  if (isDenormal(ans) && isZero(result)) {
+    if (ans.Float.sign != result.Float.sign) {
+      return 0;
+    }
+    return 1;
+  }
+
+  if (isDenormal(a) || isDenormal(b)) {
+
+    if (isDenormal(a) && isDenormal(b) && isZero(result)) {
+			//非正規化数同士の和は0 or -0を返す仕様
+			return (result.Float.sign == ans.Float.sign) ? 1 : 0;
+    }
+
+    if ((isDenormal(a) && result.u == b.u)||
+        (isDenormal(b) && result.u == a.u)) {
+          return 1;
+    }
+    return 0;
+  }
+
+  int flg = 1;
+
+  if (ans.Float.sign != result.Float.sign) {
+    flg = 0;
+  }
+
+  if (ans.Float.exp != result.Float.exp) {
+    flg = 0;
+  }
+
+  if (abs(ans.Float.frac - result.Float.frac) > 1) {
+    //仮数部の1bitの誤差のみ許容
+    flg = 0;
+  }
+
+  return flg;
+
 }

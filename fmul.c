@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <math.h>
-#include "myfloat.h"
+#include "fpu.h"
 #define CONST_ZERO 0
 #define CONST_MINUS_ZERO 0x80000000
 #define CONST_NAN ~0
@@ -86,7 +86,11 @@ uint32_t fmul (uint32_t a1, uint32_t b1) {
 
 }
 
-int ok (uni a, uni b, uni ans, uni result) { //チェック
+int fmulCheck (uni a, uni b) { //チェック
+
+	uni ans, result;
+	ans.f = a.f * b.f;
+	result.u = fmul(a.u, b.u);
 
 	if (isNaN(ans) && isNaN(result)) {
 		return 1;
@@ -130,43 +134,5 @@ int ok (uni a, uni b, uni ans, uni result) { //チェック
 		flg = 0;
 	}
 
-	if (flg==0){
-		printf("c");
-	}
 	return flg;
-}
-
-
-int main () {
-
-  uni a, b, result, ans;
-	int r, w;
-	r=w=0;
-
-  while(scanf("%x %x", &a.u, &b.u) == 2) {
-
-    result.u = fmul(a.u, b.u);
-
-		ans.f = a.f * b.f;
-
-
-		if (!ok(a, b, ans,result)) {
-
-			puts("--a / b--");
-			print_bits(a);
-			print_bits(b);
-			puts("--Ans / Result--");
-			print_bits(ans);
-			print_bits(result);
-
-			w++;
-
-		} else {
-			r++;
-		}
-
-  }
-	printf("O: %d / X: %d\n", r, w);
-  return 0;
-
 }

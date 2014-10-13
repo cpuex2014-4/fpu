@@ -1,4 +1,4 @@
 *~
 *.o
-test.in
-test.out
+*.in
+*.out
