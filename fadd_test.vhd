@@ -43,7 +43,7 @@ begin
       hread(lin, rb);
       a <= ra;
       b <= rb;
-      wait for 2ns;
+      wait for 2 ns;
       wans:=ans;
       hwrite(lout, wans);
       writeline(write_file, lout);

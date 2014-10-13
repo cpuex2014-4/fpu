@@ -20,9 +20,12 @@ end FADD;
 architecture RTL of FADD is
   subtype int32 is std_logic_vector(31 downto 0);
   constant ff32  : int32 := (23 downto 0 => '0')&x"ff"; --256
+  constant nan32 : int32 := (others=>'1');
   constant zero32 : int32 := (others=>'0');
-  constant nan : int32 := (others=>'1');
   constant minusZero : int32 := x"80000000";
+  constant inf32 : int32 := x"7f800000";
+  constant minusInf : int32 := x"ff800000";
+
 
   function getFrac (a : int32)
     return std_logic_vector is
@@ -55,7 +58,7 @@ architecture RTL of FADD is
   function isZero (a : int32)
     return std_logic is
   begin
-    if getFrac(a) = zero32 then
+    if getExp(a) = zero32 and getFrac(a) = zero32 then
       return '1';
     else
       return '0';
@@ -76,13 +79,21 @@ architecture RTL of FADD is
     return int32 is
   begin
     if isNaN(a)='1' then
-      return nan;
+      return nan32;
     elsif (isInf(a)='1' and isInf(b)='1') and (getSign(a) /= getSign(b)) then
-      return nan;
+      return nan32;
     elsif isInf(a)='1' then
-      return a;
+      if getSign(a)='1' then
+        return minusInf;
+      else
+        return inf32;
+      end if;
     elsif isInf(b)='1' then
-      return b;
+      if getSign(b)='1' then
+        return minusInf;
+      else
+        return inf32;
+      end if;
     elsif (isZero(a)='1' and isZero(b)='1') then
       if getSign(a)='1' and getSign(b)='1' then
         return minusZero;
@@ -96,7 +107,7 @@ architecture RTL of FADD is
         return a;
       end if;
     end if;
-    return zero32;
+    return x"DEADBEEF";
   end ops;
 
   function log2 (frac : int32)
@@ -137,7 +148,7 @@ architecture RTL of FADD is
   end loadSign;
   function faddMain (input1: int32; input2: int32)
     return std_logic_vector is
-
+    variable tmp1 : integer;
     variable a : int32 := (others=>'0');
     variable b : int32 := (others=>'0');
     variable d  : int32;
@@ -163,12 +174,31 @@ architecture RTL of FADD is
       a := input2;
       b := input1;
     end if;
+
+    if getExp(a) = zero32 then
+      if getSign(a) = '1' then
+        return minusZero;
+      else
+        return zero32;
+      end if;
+    end if;
+
+    if getExp(b) = zero32 then
+      if getSign(b) = '1' then
+        b := minusZero;
+      else
+        b := zero32;
+      end if;
+    end if;
+
+
     if (getExp(a) = zero32 or getExp(a) = ff32 or getExp(b) = zero32 or getExp(b) = ff32) then
       -- NaN or INF
-      return ops(input1, input2);
+      return ops(a, b);
     end if;
 
     d := getExp(a) - getExp(b);
+
     if d >= x"20" then
       return a;
     end if;
@@ -179,7 +209,10 @@ architecture RTL of FADD is
     nb:= shl(getFrac(b),x"3");
     nb(26) := '1';
 
-    flg := or_reduce(nb((conv_integer(d)-1) downto 0));
+    -- (30 downto 0) is for ghdl
+    tmp1 := conv_integer(d(30 downto 0)) -1;
+    flg := or_reduce(nb(tmp1 downto 0));
+
     nb := shr(nb, d);
 
     nb(0) := nb(0) or flg;
@@ -212,35 +245,35 @@ architecture RTL of FADD is
       frac := "0"&frac(31 downto 1);
       frac(0) := tmp;
       ans := loadExp(ans, (x"000000"&a(30 downto 23))+1);
-	 else
+   else
       ans := loadExp(ans, (x"000000"&a(30 downto 23)));
     end if;
 
 
-    ulp		:= frac(3);
-		guard := frac(2);
-		round := frac(1);
-		stick := frac(0);
+    ulp   := frac(3);
+    guard := frac(2);
+    round := frac(1);
+    stick := frac(0);
 
-		if guard='1' and (ulp='1' or round='1' or stick='1') then
-			frac := frac + 8;
-			if frac(27)='1' then
-				ans := loadExp(ans, getExp(ans)+1);
-			end if;
-		end if;
+    if guard='1' and (ulp='1' or round='1' or stick='1') then
+      frac := frac + 8;
+      if frac(27)='1' then
+        ans := loadExp(ans, getExp(ans)+1);
+      end if;
+    end if;
 
-		if getExp(ans) >= ff32 then
+    if getExp(ans) >= ff32 then
 
-			if getSign(a) = '1' then
-				return x"ff800000";
-			else
-				return x"7f800000";
-			end if;
-		end if;
+      if getSign(a) = '1' then
+        return x"ff800000";
+      else
+        return x"7f800000";
+      end if;
+    end if;
 
-		ans := loadFrac(ans, shr(frac, x"3"));
-		ans := loadSign(ans, getSign(a));
-		return ans;
+    ans := loadFrac(ans, shr(frac, x"3"));
+    ans := loadSign(ans, getSign(a));
+    return ans;
   end faddMain;
 begin
   proc:process(input1,input2)

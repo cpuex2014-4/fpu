@@ -58,8 +58,8 @@ uint32_t fadd (uint32_t a1, uint32_t b1) {
   if (isDenormal(a)) {
     assert(isDenormal(b)); //bの方が絶対値が小さいため
 
-		//非正規化数同士の和は0 or -0を返す仕様
-		return (a.Float.sign) ? CONST_MINUS_ZERO : CONST_ZERO;
+    //非正規化数同士の和は0 or -0を返す仕様
+    return (a.Float.sign) ? CONST_MINUS_ZERO : CONST_ZERO;
   }
 
   if (isDenormal(b)) {
@@ -103,9 +103,9 @@ uint32_t fadd (uint32_t a1, uint32_t b1) {
     int exp = a.Float.exp - (26 - t);
     if (exp <= 0) {
       if (a.Float.sign) {
-        return 0b10000000000000000000000000000000;
+        return CONST_MINUS_ZERO;
       } else {
-        return 0;
+        return CONST_ZERO;
       }
     } else {
       ans.Float.exp = exp;
@@ -169,8 +169,8 @@ int faddCheck (uni a, uni b) {
   if (isDenormal(a) || isDenormal(b)) {
 
     if (isDenormal(a) && isDenormal(b) && isZero(result)) {
-			//非正規化数同士の和は0 or -0を返す仕様
-			return (result.Float.sign == ans.Float.sign) ? 1 : 0;
+      //非正規化数同士の和は0 or -0を返す仕様
+      return (result.Float.sign == ans.Float.sign) ? 1 : 0;
     }
 
     if ((isDenormal(a) && result.u == b.u)||
