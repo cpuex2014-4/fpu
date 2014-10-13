@@ -16,13 +16,13 @@ uint32_t fmul (uint32_t a1, uint32_t b1) {
   uni a, b, ans;
   a.u = a1;
   b.u = b1;
-	if (a.Float.exp ==0 || b.Float.exp == 0) {
-		if (isInf(a) || isInf(b)) {
-			return CONST_NAN;
-		} else {
-			return (a.Float.sign ^ b.Float.sign) ? CONST_MINUS_ZERO : CONST_ZERO;
-		}
-	}
+  if (a.Float.exp ==0 || b.Float.exp == 0) {
+    if (isInf(a) || isInf(b)) {
+      return CONST_NAN;
+    } else {
+      return (a.Float.sign ^ b.Float.sign) ? CONST_MINUS_ZERO : CONST_ZERO;
+    }
+  }
 
   if (isNaN(a) || isNaN(b)) {
     return CONST_NAN;
@@ -47,17 +47,17 @@ uint32_t fmul (uint32_t a1, uint32_t b1) {
 
   if (mulFrac & (1<< 25)) {
 
-		//繰り上がり
-		exp += 1;
+    //繰り上がり
+    exp += 1;
 
-		//fracにmulFrac(24 downto 2)をいれる
-		ans.Float.frac = ((1<<25)^mulFrac) >> 2;
+    //fracにmulFrac(24 downto 2)をいれる
+    ans.Float.frac = ((1<<25)^mulFrac) >> 2;
 
   } else {
 
-		assert(mulFrac & (1 << 24));
+    assert(mulFrac & (1 << 24));
 
-		//fracにmulFrac(23 downto 1)をいれる
+    //fracにmulFrac(23 downto 1)をいれる
     ans.Float.frac = ((1<<24)^mulFrac) >> 1;
   }
 
@@ -88,51 +88,51 @@ uint32_t fmul (uint32_t a1, uint32_t b1) {
 
 int fmulCheck (uni a, uni b) { //チェック
 
-	uni ans, result;
-	ans.f = a.f * b.f;
-	result.u = fmul(a.u, b.u);
+  uni ans, result;
+  ans.f = a.f * b.f;
+  result.u = fmul(a.u, b.u);
 
-	if (isNaN(ans) && isNaN(result)) {
-		return 1;
-	}
+  if (isNaN(ans) && isNaN(result)) {
+    return 1;
+  }
 
-	if (isInf(ans) && isInf(result)) {
-		if (ans.Float.sign != result.Float.sign) {
-			return 0;
-		}
-		return 1;
-	}
+  if (isInf(ans) && isInf(result)) {
+    if (ans.Float.sign != result.Float.sign) {
+      return 0;
+    }
+    return 1;
+  }
 
-	if (isDenormal(ans) && isZero(result)) {
-		if (ans.Float.sign != result.Float.sign) {
-			return 0;
-		}
-		return 1;
-	}
+  if (isDenormal(ans) && isZero(result)) {
+    if (ans.Float.sign != result.Float.sign) {
+      return 0;
+    }
+    return 1;
+  }
 
-	if (isDenormal(a) || isDenormal(b)) {
-		//非正規化数は0として扱うので、それによる積も0
-		if (ans.Float.sign == result.Float.sign && isZero(result)) {
-			return 1;
-		}
-		return 0;
-	}
+  if (isDenormal(a) || isDenormal(b)) {
+    //非正規化数は0として扱うので、それによる積も0
+    if (ans.Float.sign == result.Float.sign && isZero(result)) {
+      return 1;
+    }
+    return 0;
+  }
 
 
-	int flg = 1;
+  int flg = 1;
 
-	if (ans.Float.sign != result.Float.sign) {
-		flg = 0;
-	}
+  if (ans.Float.sign != result.Float.sign) {
+    flg = 0;
+  }
 
-	if (ans.Float.exp != result.Float.exp) {
-		flg = 0;
-	}
+  if (ans.Float.exp != result.Float.exp) {
+    flg = 0;
+  }
 
-	if (abs(ans.Float.frac - result.Float.frac) > 1) {
-		//仮数部の1bitの誤差のみ許容
-		flg = 0;
-	}
+  if (abs(ans.Float.frac - result.Float.frac) > 1) {
+    //仮数部の1bitの誤差のみ許容
+    flg = 0;
+  }
 
-	return flg;
+  return flg;
 }
