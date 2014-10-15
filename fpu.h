@@ -30,8 +30,14 @@ void u_print_bits_with (uint32_t , char *);
 // functions
 uint32_t fadd (uint32_t, uint32_t );
 int faddCheck (uni , uni);
+
 uint32_t fmul (uint32_t, uint32_t );
 int fmulCheck (uni , uni);
+
 uint32_t itof (uint32_t);
 int itofCheck (uni);
+
+uint32_t ftoi (uint32_t);
+int ftoiCheck (uni);
+
 #endif
