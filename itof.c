@@ -23,6 +23,7 @@ uint32_t itof (uint32_t a) { //signedの値をuint32_tとして受け取って�
 
   return (sign<<31)|fadd(low.u, high.u);
 }
+
 int itofCheck (uni a) {
   uni ans,result;
   int n = a.u; //一度signedに直す必要がある
