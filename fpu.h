@@ -32,5 +32,6 @@ uint32_t fadd (uint32_t, uint32_t );
 int faddCheck (uni , uni);
 uint32_t fmul (uint32_t, uint32_t );
 int fmulCheck (uni , uni);
-
+uint32_t itof (uint32_t);
+int itofCheck (uni);
 #endif

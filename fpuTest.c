@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <math.h>
 #include "fpu.h"
 
 int main (int argc, char* argv[]) {
@@ -43,6 +44,22 @@ int main (int argc, char* argv[]) {
 
 		}
 
+	} else if (strcmp(argv[1], "itof") == 0) {
+		uni a;
+		while(scanf("%x", &a.u) == 1) {
+
+			printf("%08x\n", itof(a.u));
+
+			if (itofCheck(a) == 0) {
+				uni ans;
+				uni result;
+				ans.f = (float) (a.u);
+				result.u = itof(a.u);
+				fprintf(stderr, "WrongAnswer:%d(%08x)->%d %08x/%d %08x\n",
+								a.u, a.u, result.u, result.u, ans.u, ans.u);
+			}
+
+		}
 	} else {
 
 		fprintf(stderr, "target error: %s", argv[1]);
