@@ -46,20 +46,28 @@ int main (int argc, char* argv[]) {
 
 	} else if (strcmp(argv[1], "itof") == 0) {
 		uni a;
-		while(scanf("%x", &a.u) == 1) {
-
-			printf("%08x\n", itof(a.u));
+		int n;
+		while(scanf("%x", &n) == 1) { // signedを受け取る
+			a.u = n;
 
 			if (itofCheck(a) == 0) {
 				uni ans;
 				uni result;
-				ans.f = (float) (a.u);
+
+				ans.f = (float) n;
 				result.u = itof(a.u);
 				fprintf(stderr, "WrongAnswer:%d(%08x)->%d %08x/%d %08x\n",
 								a.u, a.u, result.u, result.u, ans.u, ans.u);
 			}
 
 		}
+	} else if (strcmp(argv[1], "ftoi") == 0) {
+		uni a;
+		while(scanf("%x", &a.u) == 1) {
+			printf("%08x\n", ftoi(a.u));
+			ftoiCheck(a);
+		}
+
 	} else {
 
 		fprintf(stderr, "target error: %s", argv[1]);
