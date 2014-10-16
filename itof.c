@@ -29,5 +29,10 @@ int itofCheck (uni a) {
   int n = a.u; //一度signedに直す必要がある
   ans.f = (float) n;
   result.u = itof(a.u);
+  if (ans.u != result.u) {
+    fprintf(stderr, "WrongAnswer:%d(%08x)->%d %08x/%d %08x\n",
+                a.u, a.u, result.u, result.u, ans.u, ans.u);
+  }
+
   return (ans.u == result.u) ? 1 : 0;
 }
