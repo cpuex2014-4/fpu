@@ -50,6 +50,7 @@ int main (int argc, char* argv[]) {
     int n;
     while(scanf("%x", &n) == 1) { // signedを受け取る
       a.u = n;
+      printf("%08x\n", itof(a.u));
       itofCheck(a);
     }
   } else if (strcmp(argv[1], "ftoi") == 0) {
