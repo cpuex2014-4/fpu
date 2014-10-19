@@ -40,4 +40,8 @@ int itofCheck (uni);
 uint32_t ftoi (uint32_t);
 int ftoiCheck (uni);
 
+int feq  (uint32_t, uint32_t);
+int flt  (uint32_t, uint32_t);
+int fle (uint32_t, uint32_t);
+
 #endif

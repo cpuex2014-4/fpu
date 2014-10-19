@@ -2,7 +2,7 @@ CC   = gcc
 CFLAGS = -lm -Wall
 TARGET1 = fpuTest
 TARGET2 = testGen
-OBJS1  = float.o fadd.o fmul.o itof.o ftoi.o fpuTest.o
+OBJS1  = float.o fadd.o fmul.o itof.o ftoi.o fcmp.o fpuTest.o
 OBJS2  = float.o testGen.o
 
 all: $(TARGET1) $(TARGET2)

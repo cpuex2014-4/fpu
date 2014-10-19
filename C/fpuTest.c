@@ -60,6 +60,13 @@ int main (int argc, char* argv[]) {
       ftoiCheck(a);
     }
 
+  } else if (strcmp(argv[1], "fle") == 0) {
+    uni a, b;
+
+    while(scanf("%x %x", &a.u, &b.u) == 2) {
+      printf("%08x\n", fle(a.u, b.u));
+    }
+
   } else {
 
     fprintf(stderr, "target error: %s", argv[1]);
