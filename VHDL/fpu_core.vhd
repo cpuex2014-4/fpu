@@ -14,7 +14,7 @@ entity FPUCORE is
   );
 end FPUCORE;
 
-architecture Behavior of top is
+architecture Behavior of FPUCORE is
   subtype int32 is std_logic_vector(31 downto 0);
   subtype unsigned32 is unsigned(31 downto 0);
 
@@ -47,22 +47,25 @@ architecture Behavior of top is
   end component;
 
   signal fadd_out, fmul_out: int32;
+  signal in1_std, in2_std : int32;
   signal feq_out, flt_out: std_logic;
 begin
-  fadd: FADD port map (
-    input1=>in_1, input2=> in_2, output=> fadd_out
+  add: FADD port map (
+    input1=>in1_std, input2=> in2_std, output=> fadd_out
   );
-  fmul: FMUL port map (
-    input1=>in_1, input2=> in_2, output=> fmul_out
-  );
-
-  feq: FEQ port map (
-    input1=>in_1, input2=> in_2, output=> feq_out
-  );
-  flt: FLT port map (
-    input1=>in_1, input2=> in_2, output=> flt_out
+  mul: FMUL port map (
+    input1=>in1_std, input2=> in2_std, output=> fmul_out
   );
 
+  equal: FEQ port map (
+    input1=>in1_std, input2=> in2_std, output=> feq_out
+  );
+  lessthan: FLT port map (
+    input1=>in1_std, input2=> in2_std, output=> flt_out
+  );
+
+  in1_std <= std_logic_vector(in_1);
+  in2_std <= std_logic_vector(in_2);
 
 
   fpu: process(clk)
@@ -73,7 +76,7 @@ begin
           out_1 <= unsigned(fadd_out);
           cond <= '0';
         when "000010" => --fmul
-          out_1 <= unsigned(fmil_out);
+          out_1 <= unsigned(fmul_out);
           cond <= '0';
         when "110010" => --fequal
           out_1 <= x"00000000";
