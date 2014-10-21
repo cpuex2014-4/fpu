@@ -28,6 +28,9 @@ architecture RTL of FADD is
   constant minusInf : int32 := x"ff800000";
 
 
+
+
+
   function getFrac (a : int32)
     return std_logic_vector is
   begin
@@ -186,6 +189,10 @@ architecture RTL of FADD is
 
     d := getExp(a) - getExp(b);
 
+    if d >= x"20" then
+      d := x"00000000";
+    end if;
+
     -- (30 downto 0) is for ghdl
     tmp1 := conv_integer(d(30 downto 0)) -1;
     flg := or_reduce(nb(tmp1 downto 0));
@@ -218,6 +225,7 @@ architecture RTL of FADD is
     variable ans : int32 := (others=>'0');
         variable t:    int32 := (others=>'0');
   begin
+
     -- 共通部分 --
     frac := frac1;
     if input1(30 downto 0) >= input2(30 downto 0) then
@@ -228,6 +236,13 @@ architecture RTL of FADD is
       b := input1;
     end if;
 
+    if getExp(a) = zero32 then
+      if getSign(a) = '1' then
+        return minusZero;
+      else
+        return zero32;
+      end if;
+    end if;
 
     if getExp(b) = zero32 then
       if getSign(b) = '1' then
@@ -237,20 +252,10 @@ architecture RTL of FADD is
       end if;
     end if;
 
-
-    if getExp(a) = zero32 then
-      if getSign(a) = '1' then
-        return minusZero;
-      else
-        return zero32;
-      end if;
-    end if;
-    ----
     if (getExp(a) = zero32 or getExp(a) = ff32 or getExp(b) = zero32 or getExp(b) = ff32) then
       -- NaN or INF
       return ops(a, b);
     end if;
-
 
 
     d := getExp(a) - getExp(b);
@@ -310,25 +315,22 @@ architecture RTL of FADD is
 
     ans := loadFrac(ans, shr(frac, x"3"));
     ans := loadSign(ans, getSign(a));
+
     return ans;
   end faddMain2;
 begin
-  proc:process(input1,input2)
-    variable va, vb: int32;
-    variable state: std_logic;
-    variable frac: int32 := (others=>'0');
+  proc:process(input1,input2, clk)
+    variable va1, vb1,va2,vb2: int32 := (others=>'0');
+    variable frac1, frac2: int32 := (others=>'0');
   begin
-    state:='0';
     if rising_edge(clk) then
-      if state='0' then
-        va := input1;
-        vb := input2;
-        state := '1';
-        frac := faddMain1(va, vb);
-      else
-        state := '0';
-        output <= faddMain2(va, vb, frac);
-      end if;
+      va2 := va1;
+      vb2 := vb1;
+      frac2 := frac1;
+      va1 := input1;
+      vb1 := input2;
+      frac1 := faddMain1(va1, vb1);
+      output <= faddMain2(va2, vb2, frac2);
     end if;
   end process;
 end RTL;

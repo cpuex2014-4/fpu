@@ -31,31 +31,32 @@ architecture Behavior of top is
 begin
   hoge: FADD port map (input1=>a,input2=>b,clk=>clk,output=>ans);
 
-  readProc:process
+  readProc:process(clk)
     variable lin : line;
     variable ra : int32;
     variable rb : int32;
     variable wans : int32;
     variable lout : line;
   begin
-    while not(endfile(read_file)) loop
+    if rising_edge(clk) then
       readline(read_file, lin);
       hread(lin, ra);
       hread(lin, rb);
       a <= ra;
       b <= rb;
-      clk<='1';
-      wait for 2 ns;
-      clk<='0';
-      wait for 2 ns;
-      clk<='1';
-      wait for 2 ns;
-      clk<='0';
-      wans:=ans;
-      hwrite(lout, wans);
+    end if;
+    if falling_edge(clk) then
+      hwrite(lout, ans);
       writeline(write_file, lout);
-    end loop;
-    wait;
+    end if;
+  end process;
+
+  clockgen: process
+  begin
+    clk<='0';
+    wait for 5 ns;
+    clk<='1';
+    wait for 5 ns;
   end process;
 
 end Behavior;
