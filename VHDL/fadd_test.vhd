@@ -18,17 +18,18 @@ architecture Behavior of top is
   port (
     input1 : in  std_logic_vector (31 downto 0);
     input2 : in  std_logic_vector (31 downto 0);
+    clk: in std_logic;
     output : out std_logic_vector (31 downto 0)
   );
   end component;
   signal a:int32 := (others=>'0');
   signal b:int32 := (others=>'0');
   signal ans:int32 := (others=>'0');
-  -- signal clk:std_logic := '0';
+  signal clk:std_logic := '0';
   file  read_file  : text open read_mode  is "test.in";
   file  write_file : text open write_mode is "test.out";
 begin
-  hoge: FADD port map (input1=>a,input2=>b,output=>ans);
+  hoge: FADD port map (input1=>a,input2=>b,clk=>clk,output=>ans);
 
   readProc:process
     variable lin : line;
@@ -43,7 +44,13 @@ begin
       hread(lin, rb);
       a <= ra;
       b <= rb;
+      clk<='1';
       wait for 2 ns;
+      clk<='0';
+      wait for 2 ns;
+      clk<='1';
+      wait for 2 ns;
+      clk<='0';
       wans:=ans;
       hwrite(lout, wans);
       writeline(write_file, lout);

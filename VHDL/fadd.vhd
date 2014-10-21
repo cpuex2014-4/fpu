@@ -10,6 +10,7 @@ entity FADD is
   port (
     input1 : in  std_logic_vector (31 downto 0);
     input2 : in  std_logic_vector (31 downto 0);
+    clk: in std_logic;
     output : out std_logic_vector (31 downto 0)
     );
 end FADD;
@@ -146,24 +147,17 @@ architecture RTL of FADD is
     r(31) := b;
     return r;
   end loadSign;
-  function faddMain (input1: int32; input2: int32)
+  function faddMain1 (input1: int32; input2: int32)
     return std_logic_vector is
     variable tmp1 : integer;
+    variable d  : int32;
     variable a : int32 := (others=>'0');
     variable b : int32 := (others=>'0');
-    variable d  : int32;
     variable na : int32;
     variable nb : int32;
     variable flg : std_logic := '0';
     variable frac: int32 := (others=>'0');
-    variable t:    int32 := (others=>'0');
-    variable exp:  int32 := (others=>'0');
-    variable ulp:   std_logic := '0';
-    variable guard: std_logic := '0';
-    variable round: std_logic := '0';
-    variable stick: std_logic := '0';
-    variable tmp:   std_logic := '0';
-    variable ans : int32 := (others=>'0');
+
   begin
     -- |a| >= |b|
 
@@ -175,14 +169,6 @@ architecture RTL of FADD is
       b := input1;
     end if;
 
-    if getExp(a) = zero32 then
-      if getSign(a) = '1' then
-        return minusZero;
-      else
-        return zero32;
-      end if;
-    end if;
-
     if getExp(b) = zero32 then
       if getSign(b) = '1' then
         b := minusZero;
@@ -190,24 +176,15 @@ architecture RTL of FADD is
         b := zero32;
       end if;
     end if;
-
-
-    if (getExp(a) = zero32 or getExp(a) = ff32 or getExp(b) = zero32 or getExp(b) = ff32) then
-      -- NaN or INF
-      return ops(a, b);
-    end if;
-
-    d := getExp(a) - getExp(b);
-
-    if d >= x"20" then
-      return a;
-    end if;
+    -- 共通
 
     na:= shl(getFrac(a),x"3");
     na(26) := '1';
 
     nb:= shl(getFrac(b),x"3");
     nb(26) := '1';
+
+    d := getExp(a) - getExp(b);
 
     -- (30 downto 0) is for ghdl
     tmp1 := conv_integer(d(30 downto 0)) -1;
@@ -222,6 +199,66 @@ architecture RTL of FADD is
     else
       frac := na - nb;
     end if;
+
+    return frac;
+  end faddMain1;
+
+  function faddMain2 (input1: int32; input2: int32; frac1: int32)
+    return std_logic_vector is
+    variable a : int32 := (others=>'0');
+    variable b : int32 := (others=>'0');
+    variable frac: int32 := (others=>'0');
+    variable exp:  int32 := (others=>'0');
+    variable d  : int32;
+    variable ulp:   std_logic := '0';
+    variable guard: std_logic := '0';
+    variable round: std_logic := '0';
+    variable stick: std_logic := '0';
+    variable tmp:   std_logic := '0';
+    variable ans : int32 := (others=>'0');
+        variable t:    int32 := (others=>'0');
+  begin
+    -- 共通部分 --
+    frac := frac1;
+    if input1(30 downto 0) >= input2(30 downto 0) then
+      a := input1;
+      b := input2;
+    else
+      a := input2;
+      b := input1;
+    end if;
+
+
+    if getExp(b) = zero32 then
+      if getSign(b) = '1' then
+        b := minusZero;
+      else
+        b := zero32;
+      end if;
+    end if;
+
+
+    if getExp(a) = zero32 then
+      if getSign(a) = '1' then
+        return minusZero;
+      else
+        return zero32;
+      end if;
+    end if;
+    ----
+    if (getExp(a) = zero32 or getExp(a) = ff32 or getExp(b) = zero32 or getExp(b) = ff32) then
+      -- NaN or INF
+      return ops(a, b);
+    end if;
+
+
+
+    d := getExp(a) - getExp(b);
+
+    if d >= x"20" then
+      return a;
+    end if;
+
     t := log2(frac);
     if frac = 0 then
       return zero32;
@@ -245,7 +282,7 @@ architecture RTL of FADD is
       frac := "0"&frac(31 downto 1);
       frac(0) := tmp;
       ans := loadExp(ans, (x"000000"&a(30 downto 23))+1);
-   else
+    else
       ans := loadExp(ans, (x"000000"&a(30 downto 23)));
     end if;
 
@@ -274,13 +311,24 @@ architecture RTL of FADD is
     ans := loadFrac(ans, shr(frac, x"3"));
     ans := loadSign(ans, getSign(a));
     return ans;
-  end faddMain;
+  end faddMain2;
 begin
   proc:process(input1,input2)
     variable va, vb: int32;
+    variable state: std_logic;
+    variable frac: int32 := (others=>'0');
   begin
-    va := input1;
-    vb := input2;
-    output <= faddMain(va, vb);
+    state:='0';
+    if rising_edge(clk) then
+      if state='0' then
+        va := input1;
+        vb := input2;
+        state := '1';
+        frac := faddMain1(va, vb);
+      else
+        state := '0';
+        output <= faddMain2(va, vb, frac);
+      end if;
+    end if;
   end process;
 end RTL;
