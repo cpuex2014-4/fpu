@@ -22,6 +22,7 @@ architecture Behavior of FPUCORE is
   port (
     input1 : in  std_logic_vector (31 downto 0);
     input2 : in  std_logic_vector (31 downto 0);
+    clk : in std_logic;
     output : out std_logic_vector (31 downto 0)
   );
   end component;
@@ -51,7 +52,8 @@ architecture Behavior of FPUCORE is
   signal feq_out, flt_out: std_logic;
 begin
   add: FADD port map (
-    input1=>in1_std, input2=> in2_std, output=> fadd_out
+    input1=>in1_std, input2=> in2_std,
+    clk=>clk, output=> fadd_out
   );
   mul: FMUL port map (
     input1=>in1_std, input2=> in2_std, output=> fmul_out
