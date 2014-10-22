@@ -4,11 +4,15 @@ use IEEE.std_logic_misc.all;
 use IEEE.std_logic_arith.all;
 use IEEE.std_logic_unsigned.all;
 
-entity FMUL is
+entity FMUL_STAGE2 is
   Port (input1   : in  std_logic_vector (31 downto 0);
         input2   : in  std_logic_vector (31 downto 0);
+        hh   : in  std_logic_vector (35 downto 0);
+        hl1  : in  std_logic_vector (35 downto 0);
+        hl2  : in  std_logic_vector (35 downto 0);
+        sumExp : in std_logic_vector (31 downto 0));
         output : out std_logic_vector (31 downto 0));
-end entity FMUL;
+end entity FMUL_STAGE2;
 
 architecture RTL of FMUL is
   subtype int32 is std_logic_vector(31 downto 0);
@@ -24,10 +28,7 @@ architecture RTL of FMUL is
   signal aZero, bZero : std_logic;
   signal underFlow : std_logic;
   signal aInf, bInf : std_logic;
-  signal aHigh, aLow : std_logic_vector (17 downto 0);
-  signal bHigh, bLow : std_logic_vector (17 downto 0);
-  signal hh, hl1, hl2: std_logic_vector (35 downto 0);
-  signal aExp, bExp, exp : int32;
+  signal exp : int32;
   signal mulFrac: int32;
   signal signedInf, signedZero : int32;
   signal ansSign: std_logic;
@@ -56,15 +57,7 @@ begin
 
 
 
-  aLow  <= "0000000"&a(10 downto 0);
-  aHigh <= "000001" &a(22 downto 11);
 
-  bLow  <= "0000000"&b(10 downto 0);
-  bHigh <= "000001" &b(22 downto 11);
-
-  hh  <= aHigh * bHigh;
-  hl1 <= aHigh * bLow;
-  hl2 <= aLow  * bHigh;
 
   mulFrac <= hh(31 downto 0) +
              ("00000000000"&hl1(31 downto 11)) +
@@ -79,17 +72,15 @@ begin
   signedZero <= zero32 when ansSign='0' else
                 minusZero;
 
-  aExp <= x"000000"&a(30 downto 23);
-  bExp <= x"000000"&b(30 downto 23);
 
 
 
-  underFlow <= '1' when (((aExp + bExp) <= x"0000007e") and (mulFrac(25) = '1')) or
-                        (((aExp + bExp) <= x"0000007f") and (mulFrac(25) = '0')) else
+  underFlow <= '1' when (((sumExp) <= x"0000007e") and (mulFrac(25) = '1')) or
+                        (((sumExp) <= x"0000007f") and (mulFrac(25) = '0')) else
                '0';
 
-  exp  <= aExp + bExp - x"7e" when mulFrac(25) = '1' else
-          aExp + bExp - x"7f";
+  exp  <= sumExp - x"7e" when mulFrac(25) = '1' else
+          sumExp - x"7f";
 
   ansExp <= exp(7 downto 0);
 
