@@ -16,6 +16,7 @@ end entity FMUL_STAGE1;
 
 architecture RTL of FMUL_STAGE1 is
   subtype int32 is std_logic_vector(31 downto 0);
+  signal a, b: int32;
   signal aHigh, aLow : std_logic_vector (17 downto 0);
   signal bHigh, bLow : std_logic_vector (17 downto 0);
   signal aExp, bExp: int32;

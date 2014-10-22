@@ -3,6 +3,19 @@ use IEEE.std_logic_unsigned.all;
 use IEEE.std_logic_1164.all;
 use IEEE.numeric_std.all;
 
+package kakeudon_fpu is
+  component FPUCORE is
+    Port(
+      clk: in std_logic;
+      op : in unsigned(5 downto 0);
+      in_1 : in  unsigned(31 downto 0);
+      in_2 : in  unsigned(31 downto 0);
+      out_1 : out unsigned(31 downto 0);
+      cond   : out std_logic
+    );
+  end component FPUCORE;
+end package kakeudon_fpu;
+
 entity FPUCORE is
   Port(
     clk: in std_logic;
@@ -31,6 +44,7 @@ architecture Behavior of FPUCORE is
   port (
     input1 : in  std_logic_vector (31 downto 0);
     input2 : in  std_logic_vector (31 downto 0);
+    clk: in std_logic;
     output : out std_logic_vector (31 downto 0)
   );
   end component;
@@ -56,7 +70,8 @@ begin
     clk=>clk, output=> fadd_out
   );
   mul: FMUL port map (
-    input1=>in1_std, input2=> in2_std, output=> fmul_out
+    input1=>in1_std, input2=> in2_std,
+    clk=>clk, output=> fmul_out
   );
 
   equal: FEQ port map (

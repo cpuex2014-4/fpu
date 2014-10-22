@@ -10,11 +10,11 @@ entity FMUL_STAGE2 is
         hh   : in  std_logic_vector (35 downto 0);
         hl1  : in  std_logic_vector (35 downto 0);
         hl2  : in  std_logic_vector (35 downto 0);
-        sumExp : in std_logic_vector (31 downto 0));
+        sumExp : in std_logic_vector (31 downto 0);
         output : out std_logic_vector (31 downto 0));
 end entity FMUL_STAGE2;
 
-architecture RTL of FMUL is
+architecture RTL of FMUL_STAGE2 is
   subtype int32 is std_logic_vector(31 downto 0);
 
   constant nan32 : int32 := (others=>'1');
