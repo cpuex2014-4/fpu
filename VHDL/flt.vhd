@@ -14,6 +14,7 @@ architecture RTL of FLT is
   subtype int32 is std_logic_vector(31 downto 0);
   signal a, b : int32;
   signal isNaN : std_logic;
+  signal cmp : std_logic;
 begin
 
   a <= x"00000000" when input1(30 downto 23) = x"00" else
@@ -25,7 +26,11 @@ begin
                      (b(30 downto 23) = x"ff" and b(22 downto 0) /= x"00") else
             '0';
 
-  output <= '1' when isNaN = '0' and (to_integer(signed(a)) < to_integer(signed(b))) else
+  cmp    <= '1' when ((to_integer(signed(a)) > to_integer(signed(b))) and ((a(31) and b(31)) = '1' )) or --両方負
+                     ((to_integer(signed(a)) < to_integer(signed(b))) and ((a(31) and b(31)) = '0' )) else
+            '0';
+
+  output <= '1' when isNaN = '0' and cmp = '1' else
             '0';
 
 end architecture RTL;

@@ -43,6 +43,9 @@ int ftoiCheck (uni);
 int feq  (uint32_t, uint32_t);
 int flt  (uint32_t, uint32_t);
 int fle (uint32_t, uint32_t);
+int feqCheck (uni, uni);
+int fltCheck (uni, uni);
+int fleCheck (uni, uni);
 
 uint32_t finv (uint32_t);
 int finvCheck (uni);

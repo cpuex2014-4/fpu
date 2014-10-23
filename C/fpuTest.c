@@ -60,11 +60,28 @@ int main (int argc, char* argv[]) {
       ftoiCheck(a);
     }
 
+  } else if (strcmp(argv[1], "feq") == 0) {
+    uni a, b;
+
+    while(scanf("%x %x", &a.u, &b.u) == 2) {
+      printf("%08x\n", feq(a.u, b.u));
+      feqCheck(a, b);
+    }
+
+  } else if (strcmp(argv[1], "flt") == 0) {
+    uni a, b;
+
+    while(scanf("%x %x", &a.u, &b.u) == 2) {
+      printf("%08x\n", flt(a.u, b.u));
+      fltCheck(a, b);
+    }
+
   } else if (strcmp(argv[1], "fle") == 0) {
     uni a, b;
 
     while(scanf("%x %x", &a.u, &b.u) == 2) {
       printf("%08x\n", fle(a.u, b.u));
+      fleCheck(a, b);
     }
 
   } else {
