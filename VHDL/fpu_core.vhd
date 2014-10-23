@@ -1,5 +1,4 @@
 library IEEE;
-use IEEE.std_logic_unsigned.all;
 use IEEE.std_logic_1164.all;
 use IEEE.numeric_std.all;
 
@@ -15,6 +14,22 @@ package kakeudon_fpu is
     );
   end component FPUCORE;
 end package kakeudon_fpu;
+
+library IEEE;
+use IEEE.std_logic_unsigned.all;
+use IEEE.std_logic_1164.all;
+use IEEE.numeric_std.all;
+
+entity FPUCORE is
+  Port(
+    clk: in std_logic;
+    op : in unsigned(5 downto 0);
+    in_1 : in  unsigned(31 downto 0);
+    in_2 : in  unsigned(31 downto 0);
+    out_1 : out unsigned(31 downto 0);
+    cond   : out std_logic
+  );
+end FPUCORE;
 
 architecture Behavior of FPUCORE is
   subtype int32 is std_logic_vector(31 downto 0);
