@@ -105,21 +105,15 @@ begin
       tx=>rs_tx);
 
   calc: process(clk)
-    variable cm: integer;
   begin
     a <= as(cnt);
     b <= bs(cnt);
     if rising_edge(clk) then
        if uart_busy='0' and uart_go='0' then
-         if cnt = 0 then
-           cm := 11;
-         else
-           cm := cnt-1;
-         end if;
-         if ans = cs(cm) then
+         if ans = cs(cnt) then
            result <= x"01";
          else
-           result <= x"00";
+           result <= ans(7 downto 0);
          end if;
          uart_go <= '1';
 
