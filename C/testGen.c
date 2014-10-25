@@ -27,9 +27,11 @@ int main () {
     uni a,b;
     a = randUni();
     b = randUni();
-    if(isNaN(a)||isNaN(b)) {
+    /*
+      if(isNaN(a)||isNaN(b)) {
       cnt++;continue;
     }
+    */
     sprintf(s,"%08x %08x",a.u,b.u);
     printf("%s\n", s);
   }

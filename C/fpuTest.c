@@ -45,6 +45,14 @@ int main (int argc, char* argv[]) {
     }
 
 
+  } else if (strcmp(argv[1], "finv") == 0) {
+
+    uni a;
+    while(scanf("%x", &a.u) == 1) {
+      printf("%08x\n", finv(a.u));
+      finvCheck(a);
+    }
+
   } else if (strcmp(argv[1], "itof") == 0) {
     uni a;
     int n;

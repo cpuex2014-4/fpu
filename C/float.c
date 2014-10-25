@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <math.h>
+#include <assert.h>
 #include "fpu.h"
 
 // utils
@@ -26,6 +27,10 @@ int uni_abscomp (uni a, uni b) {
   return (s > t) ? 1 : ((s < t)? -1: 0);
 }
 
+uint32_t downTo(uint32_t a, uint32_t l, uint32_t r) {
+  assert(l>=r);
+  return ((~((~0)<<(1+l)))&a)>>r;
+}
 
 // debug print
 void u_print_bits (uint32_t a) {

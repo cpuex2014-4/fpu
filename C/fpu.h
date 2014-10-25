@@ -19,7 +19,7 @@ int isZero(uni );
 int isDenormal(uni );
 int isInf (uni );
 int uni_abscomp (uni , uni );
-
+uint32_t downTo (uint32_t, uint32_t, uint32_t);
 
 // for debug print
 void print_bits (uni );
