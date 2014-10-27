@@ -4,7 +4,7 @@ import struct
 delta = 2**(-11)
 
 def calcA(t):
-    return (1/t) * (1/ (t+delta))
+    return (-1/t) * (1/ (t+delta))
 
 def calcB(t):
     return (0.5 * (math.sqrt(1/t) + math.sqrt(1/(t+delta)))**2)

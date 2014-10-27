@@ -75,13 +75,12 @@ uint32_t finv (uint32_t x1) {
 
   uni ret;
   // inv(reg) == a*reg + b
-  ret.u = fadd(fmul(a, reg.u), b);
+  uint32_t ax = fmul(a, reg.u);
+  ret.u = fadd(ax, b);
 
   //指数部、符号部の調整
   if (ret.Float.exp < d) {
     ret.Float.exp = 0;
-  } else if (ret.Float.exp - d > 255) {
-    ret.Float.exp = 255;
   } else {
     ret.Float.exp -= d;
   }
