@@ -127,38 +127,17 @@ begin
   in2_std <= std_logic_vector(in_2);
   neg_in2 <= (not in2_std(31))&in2_std(30 downto 0);
 
-  fpu: process(clk)
-  begin
-    if rising_edge(clk) then
-      case op is
-        when "000000" => -- fadd (2 clock)
-          out_1 <= unsigned(fadd_out);
-          cond <= '0';
-        when "000001" => -- fsub (2 clock)
-          out_1 <= unsigned(fsub_out);
-          cond <= '0';
-        when "000010" => -- fmul (2 clock)
-          out_1 <= unsigned(fmul_out);
-          cond <= '0';
-        when "100000" => -- itof (5 clock)
-          out_1 <= unsigned(itof_out);
-          cond <=  '0';
-        when "100100" => -- ftoi
-          out_1 <= unsigned(ftoi_out);
-          cond <=  '0';
-        when "110010" => -- feq
-          out_1 <= x"00000000";
-          cond <= feq_out;
-        when "110100" => -- flt
-          out_1 <= x"00000000";
-          cond <= flt_out;
-        when "110101" => -- fle
-          out_1 <= x"00000000";
-          cond <= fle_out;
-        when others =>
-          out_1 <= x"00000000";
-          cond <= '0';
-      end case;
-    end if;
-  end process;
+
+  out_1 <= unsigned(fadd_out) when op = "000000" else -- fadd (2 clock)
+           unsigned(fsub_out) when op = "000001" else -- fsub (2 clock)
+           unsigned(fmul_out) when op = "000010" else -- fmul (2 clock)
+           unsigned(itof_out) when op = "100000" else -- itof (5 clock)
+           unsigned(ftoi_out) when op = "000100" else -- ftoi (1 clock)
+           x"00000000";
+
+  cond <= feq_out when op = "110010" else -- feq
+          flt_out when op = "110100" else -- flt
+          fle_out when op = "110101" else -- fle
+          '0';
+
 end Behavior;
