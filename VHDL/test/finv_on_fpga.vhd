@@ -100,7 +100,7 @@ begin
          end if;
          uart_go <= '1';
 
-         if cnt = 12 then
+         if cnt = 11 then
            cnt <= 0;
          else
            cnt <= cnt + 1;
