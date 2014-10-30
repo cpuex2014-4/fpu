@@ -20,7 +20,6 @@ char s[100];
 
 int main () {
 
-  long long cnt=0;
   unsigned i;
   srand(0);
   for(i=0;i<200000;i++) {

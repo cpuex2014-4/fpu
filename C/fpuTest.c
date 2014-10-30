@@ -35,13 +35,18 @@ int main (int argc, char* argv[]) {
 
       printf("%08x\n", fmul(a.u, b.u));
 
-      if (fmulCheck(a, b) == 0) {
-        uni ans;
-        ans.f = a.f * b.f;
-        fprintf(stderr, "WrongAnswer: %08x %08x Result=%08x Answer=%08x\n",
-                a.u, b.u, fmul(a.u, b.u), ans.u);
-      }
+      fmulCheck(a, b);
 
+    }
+
+
+  } else if (strcmp(argv[1], "fdiv") == 0){
+
+    uni a, b;
+    while(scanf("%x %x", &a.u, &b.u) == 2) {
+
+      printf("%08x\n", fdiv(a.u, b.u));
+      fdivCheck(a, b);
     }
 
 
@@ -90,6 +95,13 @@ int main (int argc, char* argv[]) {
     while(scanf("%x %x", &a.u, &b.u) == 2) {
       printf("%08x\n", fle(a.u, b.u));
       fleCheck(a, b);
+    }
+
+  } else if (strcmp(argv[1], "conv") == 0) {
+    uni a;
+    while(scanf("%x", &a.u) == 1) {
+      print_bits(a);
+      printf("float:%.10f int:%u\n", a.f, a.u);
     }
 
   } else {

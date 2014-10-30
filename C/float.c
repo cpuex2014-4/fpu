@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <math.h>
 #include <assert.h>
 #include "fpu.h"
@@ -62,4 +63,44 @@ void u_print_bits_with (uint32_t a, char *c) {
     printf("%d",((a>>i)&1?1:0));
   }
   puts(c);
+}
+
+
+int optionalCheck (uni result, uni ans) {
+
+  if (isNaN(ans) && isNaN(result)) {
+    return 1;
+  }
+
+  if (isInf(ans) && isInf(result)) {
+    if (ans.Float.sign == result.Float.sign) {
+      return 1;
+    }
+  }
+
+  if (isDenormal(ans) && isZero(result)) {
+    if (ans.Float.sign == result.Float.sign) {
+      return 1;
+    }
+  }
+  return 0;
+}
+
+
+// 何ulpまで許容するか
+int ulpCheck (uni result, uni ans, int ulp) {
+
+  if (ans.Float.sign != result.Float.sign) {
+    return 0;
+  }
+
+  if (ans.Float.exp != result.Float.exp) {
+    return 0;
+  }
+
+  if (abs(ans.Float.frac - result.Float.frac) > ulp) {
+    return 0;
+  }
+
+  return 1;
 }

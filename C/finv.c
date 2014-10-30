@@ -52,6 +52,7 @@ uint32_t finv (uint32_t x1) {
       return CONST_ZERO;
     }
   }
+
   if (isDenormal(x)|isZero(x)) {
     if (x.Float.sign) {
       return CONST_MINUS_INF;

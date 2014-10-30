@@ -26,6 +26,9 @@ void print_bits (uni );
 void u_print_bits (uint32_t );
 void u_print_bits_with (uint32_t , char *);
 
+// general check
+int optionalCheck (uni, uni);
+int ulpCheck (uni, uni, int);
 
 // functions
 uint32_t fadd (uint32_t, uint32_t );
@@ -49,5 +52,8 @@ int fleCheck (uni, uni);
 
 uint32_t finv (uint32_t);
 int finvCheck (uni);
+
+uint32_t fdiv (uint32_t, uint32_t );
+int fdivCheck (uni , uni);
 
 #endif

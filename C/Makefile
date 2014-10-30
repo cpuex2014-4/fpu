@@ -1,8 +1,8 @@
 CC   = gcc
-CFLAGS = -lm -Wall
+CFLAGS = -lm -Wall -g -std=c11
 TARGET1 = fpuTest
 TARGET2 = testGen
-OBJS1  = float.o fadd.o fmul.o finv.o itof.o ftoi.o fcmp.o fpuTest.o
+OBJS1  = float.o fadd.o fmul.o finv.o fdiv.o itof.o ftoi.o fcmp.o fpuTest.o
 OBJS2  = float.o testGen.o
 
 all: $(TARGET1) $(TARGET2)

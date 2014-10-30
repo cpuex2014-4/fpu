@@ -16,6 +16,11 @@ uint32_t fmul (uint32_t a1, uint32_t b1) {
   uni a, b, ans;
   a.u = a1;
   b.u = b1;
+
+  if (isNaN(a)==1 || isNaN(b)==1) {
+    return CONST_NAN;
+  }
+
   if (a.Float.exp ==0 || b.Float.exp == 0) {
     if (isInf(a) || isInf(b)) {
       return CONST_NAN;
@@ -24,8 +29,8 @@ uint32_t fmul (uint32_t a1, uint32_t b1) {
     }
   }
 
-  if (isNaN(a) || isNaN(b)) {
-    return CONST_NAN;
+  if (isInf(a) || isInf(b)) {
+    return (a.Float.sign ^ b.Float.sign) ? CONST_MINUS_INF : CONST_INF;
   }
 
   ans.Float.sign = a.Float.sign ^ b.Float.sign; //Sign
@@ -89,50 +94,21 @@ uint32_t fmul (uint32_t a1, uint32_t b1) {
 int fmulCheck (uni a, uni b) { //チェック
 
   uni ans, result;
-  ans.f = a.f * b.f;
   result.u = fmul(a.u, b.u);
-
-  if (isNaN(ans) && isNaN(result)) {
-    return 1;
+  if (isDenormal(a)) {
+    a.Float.frac = 0;
+  }
+  if (isDenormal(b)) {
+    b.Float.frac = 0;
   }
 
-  if (isInf(ans) && isInf(result)) {
-    if (ans.Float.sign != result.Float.sign) {
-      return 0;
-    }
-    return 1;
+  ans.f = a.f * b.f;
+
+  int flg = 0;
+  flg |= optionalCheck(result, ans);
+  flg |= ulpCheck(result, ans, 1);
+  if (flg == 0) {
+    fprintf(stderr, "WrongAnswer: %08x %08x Result=%08x Answer=%08x\n", a.u, b.u, result.u, ans.u);
   }
-
-  if (isDenormal(ans) && isZero(result)) {
-    if (ans.Float.sign != result.Float.sign) {
-      return 0;
-    }
-    return 1;
-  }
-
-  if (isDenormal(a) || isDenormal(b)) {
-    //非正規化数は0として扱うので、それによる積も0
-    if (ans.Float.sign == result.Float.sign && isZero(result)) {
-      return 1;
-    }
-    return 0;
-  }
-
-
-  int flg = 1;
-
-  if (ans.Float.sign != result.Float.sign) {
-    flg = 0;
-  }
-
-  if (ans.Float.exp != result.Float.exp) {
-    flg = 0;
-  }
-
-  if (abs(ans.Float.frac - result.Float.frac) > 1) {
-    //仮数部の1bitの誤差のみ許容
-    flg = 0;
-  }
-
   return flg;
 }
