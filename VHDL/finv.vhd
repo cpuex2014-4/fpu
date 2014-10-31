@@ -59,7 +59,7 @@ begin
   );
 
   reg  <= "001111111"&input(22 downto 0);
-  idx1 <= conv_integer(x"00000"&'0'&input(22 downto 12)) * 2;
+  idx1 <= conv_integer(input(22 downto 12)) * 2;
   a <= to_stdlogicvector(RAM(idx1));
 
   idx2 <= conv_integer(in3(22 downto 12)) * 2 + 1;
