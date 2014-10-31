@@ -20,7 +20,7 @@ architecture Behavior of top is
     input2 : in  int32;
     clk: in std_logic;
     output : out int32);
-end component;
+  end component;
   signal a:int32 := (others=>'0');
   signal b:int32 := (others=>'0');
   signal ans:int32 := (others=>'0');

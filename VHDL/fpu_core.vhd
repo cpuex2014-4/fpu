@@ -53,6 +53,15 @@ architecture Behavior of FPUCORE is
   );
   end component;
 
+  component FDIV is
+  port (
+    input1 : in  std_logic_vector (31 downto 0);
+    input2 : in  std_logic_vector (31 downto 0);
+    clk: in std_logic;
+    output : out std_logic_vector (31 downto 0)
+  );
+  end component;
+
   component ITOF is
   Port (input  : in  std_logic_vector(31 downto 0);
         clk    : in std_logic;
@@ -83,7 +92,7 @@ architecture Behavior of FPUCORE is
   end component;
 
   signal in1_std, in2_std, neg_in2: int32;
-  signal fadd_out, fsub_out, fmul_out: int32;
+  signal fadd_out, fsub_out, fmul_out, fdiv_out: int32;
   signal itof_out, ftoi_out: int32;
   signal feq_out,  flt_out, fle_out: std_logic;
 begin
@@ -100,6 +109,11 @@ begin
   mul: FMUL port map (
     input1=>in1_std, input2=> in2_std,
     clk=>clk, output=> fmul_out
+  );
+
+  div: FDIV port map (
+    input1=>in1_std, input2=> in2_std,
+    clk=>clk, output=> fdiv_out
   );
 
   i2f: ITOF port map (
@@ -131,6 +145,7 @@ begin
   out_1 <= unsigned(fadd_out) when op = "000000" else -- fadd (2 clock)
            unsigned(fsub_out) when op = "000001" else -- fsub (2 clock)
            unsigned(fmul_out) when op = "000010" else -- fmul (2 clock)
+           unsigned(fdiv_out) when op = "000011" else -- fdiv (8 clock)
            unsigned(itof_out) when op = "100000" else -- itof (5 clock)
            unsigned(ftoi_out) when op = "000100" else -- ftoi (1 clock)
            x"00000000";
