@@ -9,17 +9,16 @@
 #define CONST_NAN ~0
 #define CONST_INF   0x7f800000
 #define CONST_MINUS_INF 0xff800000
-#define DELTA  (1/2048.0)
 
 uint32_t getAForSqrt (uint32_t key) {
   uni t, a;
+  double delta = (key>>10 == 0)? 1/512.0 : 1/256.0;
   //kにexpの最下位bitが含まれていることに注意
   t.Float.sign = 0;
   t.Float.exp  = 128;
   t.Float.frac = 0;
   t.u |= key<<13;
-  a.f = 1.0/(sqrt(t.f) + sqrt(t.f+DELTA));
-
+  a.f = 1.0/(sqrt(t.f) + sqrt(t.f+delta));
   return a.u;
 }
 
@@ -103,7 +102,7 @@ int fsqrtCheck (uni a) {
 
   int flg = 0;
   flg |= optionalCheck(result, ans);
-  flg |= ulpCheck(result, ans, 4);
+  flg |= ulpCheck(result, ans, 1);
 
   if (flg == 0) {
     fprintf(stderr,
