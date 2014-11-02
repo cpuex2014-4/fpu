@@ -9,9 +9,9 @@
 #define CONST_NAN ~0
 #define CONST_INF   0x7f800000
 #define CONST_MINUS_INF 0xff800000
-double delta = 1/2048.0;
+#define DELTA  (1/2048.0)
 
-uint32_t getA (uint32_t k) {
+uint32_t getAForInv (uint32_t k) {
   uni a;
   assert(k<2048);
   a.Float.sign = 0;
@@ -19,12 +19,12 @@ uint32_t getA (uint32_t k) {
   a.Float.frac = k<<12;
   double t = a.f;
 
-  a.f = (-1.0/t) * (1.0/(t+delta));
+  a.f = (-1.0/t) * (1.0/(t+DELTA));
 
   return a.u;
 }
 
-uint32_t getB (uint32_t k) {
+uint32_t getBForInv (uint32_t k) {
   uni a;
   assert(k<2048);
   a.Float.sign = 0;
@@ -32,7 +32,7 @@ uint32_t getB (uint32_t k) {
   a.Float.frac = k<<12;
   double t = a.f;
 
-  a.f = 0.5 * pow(sqrt(1.0/t) + sqrt(1.0/(t+delta)), 2);
+  a.f = 0.5 * pow(sqrt(1.0/t) + sqrt(1.0/(t+DELTA)), 2);
 
   return a.u;
 }
@@ -71,8 +71,8 @@ uint32_t finv (uint32_t x1) {
   uint32_t key = downTo(x.u, 22, 12); //table size = 2048
 
   // aとbの値を取得
-  uint32_t a = getA(key);
-  uint32_t b = getB(key);
+  uint32_t a = getAForInv(key);
+  uint32_t b = getBForInv(key);
 
   uni ret;
   // inv(reg) == a*reg + b

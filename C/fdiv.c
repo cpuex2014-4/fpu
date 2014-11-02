@@ -18,6 +18,14 @@ uint32_t fdiv (uint32_t a, uint32_t b) {
 int fdivCheck (uni a, uni b) {
   uni ans, result;
   result.u = fdiv(a.u, b.u);
+
+  if (downTo(a.u, 30, 23) == 0) {
+    a.u &= 1<<31;
+  }
+  if (downTo(b.u, 30, 23) == 0) {
+    b.u &= 1<<31;
+  }
+
   ans.f = a.f / b.f;
 
   int flg = 0;

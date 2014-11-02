@@ -58,6 +58,13 @@ int main (int argc, char* argv[]) {
       finvCheck(a);
     }
 
+  } else if (strcmp(argv[1], "fsqrt") == 0) {
+    uni a;
+    while(scanf("%x", &a.u) == 1) {
+      printf("%08x\n", fsqrt(a.u));
+      fsqrtCheck(a);
+    }
+
   } else if (strcmp(argv[1], "itof") == 0) {
     uni a;
     int n;

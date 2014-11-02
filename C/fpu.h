@@ -56,4 +56,7 @@ int finvCheck (uni);
 uint32_t fdiv (uint32_t, uint32_t );
 int fdivCheck (uni , uni);
 
+uint32_t fsqrt (uint32_t);
+int fsqrtCheck (uni);
+
 #endif
