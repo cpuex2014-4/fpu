@@ -39,24 +39,17 @@ uint32_t fsqrt (uint32_t x1) {
   x.u = x1;
 
   //optional
-  if (isNaN(x)) {
+
+  if (isDenormal(x)|isZero(x)) {//sqrt(-0) = -0
+    return (x1>>31) ? CONST_MINUS_ZERO : CONST_ZERO;
+  }
+
+  if (isNaN(x) || x1>>31) {//負数は-0以外はNaNを返す
     return CONST_NAN;
   }
 
   if (isInf(x)) {
-    if (x.Float.sign) {
-      return CONST_MINUS_INF;
-    } else {
-      return CONST_INF;
-    }
-  }
-
-  if (isDenormal(x)|isZero(x)) {
-    if (x.Float.sign) {
-      return CONST_MINUS_ZERO;
-    } else {
-      return CONST_ZERO;
-    }
+    return CONST_INF;
   }
 
   /*
@@ -84,19 +77,18 @@ uint32_t fsqrt (uint32_t x1) {
 
   //指数部の調整
   ret.Float.exp = ((x.Float.exp+1)>>1) + 63;
-  ret.Float.sign = x.Float.sign;
+  ret.Float.sign = 0;
 
   return ret.u;
 }
 
 int fsqrtCheck (uni a) {
   uni ans, result;
-  a.Float.sign = 0;
 
   result.u = fsqrt(a.u);
 
   if (isDenormal(a)) {
-    a.u = 0;
+    a.Float.frac = 0;
   }
   ans.f = sqrt(a.f);
 
