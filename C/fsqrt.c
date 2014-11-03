@@ -12,25 +12,29 @@
 
 uint32_t getAForSqrt (uint32_t key) {
   uni t, a;
-  double delta = (key>>10 == 0)? 1/512.0 : 1/256.0;
+  double delta = (key<0b10000000000)? 1/512.0 : 1/256.0;
   //kにexpの最下位bitが含まれていることに注意
   t.Float.sign = 0;
   t.Float.exp  = 128;
   t.Float.frac = 0;
   t.u |= key<<13;
-  a.f = 1.0/(sqrt(t.f) + sqrt(t.f+delta));
+  double x = t.f;
+  double f = 1.0/(sqrt(x) + sqrt(x+delta));
+  a.f = f;
   return a.u;
 }
 
 uint32_t getBForSqrt (uint32_t key) {
-  uni t, a, b;
+  uni t, b;
+  double delta = (key<0b10000000000)? 1/512.0 : 1/256.0;
   t.Float.sign = 0;
   t.Float.exp  = 128;
   t.Float.frac = 0;
   t.u |= key<<13;
-  a.u = getAForSqrt(key);
-  b.f = 0.5 * (-a.f * t.f + sqrt(t.f) + 1.0/(4.0*a.f));
-
+  double x = t.f;
+  double a = 1.0/(sqrt(x) + sqrt(x+delta));
+  double r = 0.5 * (-a * x + sqrt(x) + 1.0/(4.0*a));
+  b.f = r;
   return b.u;
 }
 
@@ -94,7 +98,7 @@ int fsqrtCheck (uni a) {
 
   int flg = 0;
   flg |= optionalCheck(result, ans);
-  flg |= ulpCheck(result, ans, 1);
+  flg |= ulpCheck(result, ans, 2);
 
   if (flg == 0) {
     fprintf(stderr,
