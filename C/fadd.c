@@ -143,6 +143,12 @@ uint32_t fadd (uint32_t a1, uint32_t b1) {
   return ans.u;
 }
 
+uint32_t fsub (uint32_t a, uint32_t b) {
+  uint32_t negb = (1<<31)^b;
+  return fadd(a, negb);
+}
+
+
 int faddCheck (uni a, uni b) {
   uni ans, result;
   ans.f = a.f + b.f;

@@ -80,6 +80,13 @@ int main (int argc, char* argv[]) {
       ftoiCheck(a);
     }
 
+  } else if (strcmp(argv[1], "ffloor") == 0) {
+    uni a;
+    while(scanf("%x", &a.u) == 1) {
+      printf("%08x\n", ffloor(a.u));
+      ffloorCheck(a);
+    }
+
   } else if (strcmp(argv[1], "feq") == 0) {
     uni a, b;
 

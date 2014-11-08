@@ -32,6 +32,7 @@ int ulpCheck (uni, uni, int);
 
 // functions
 uint32_t fadd (uint32_t, uint32_t );
+uint32_t fsub (uint32_t, uint32_t );
 int faddCheck (uni , uni);
 
 uint32_t fmul (uint32_t, uint32_t );
@@ -58,5 +59,8 @@ int fdivCheck (uni , uni);
 
 uint32_t fsqrt (uint32_t);
 int fsqrtCheck (uni);
+
+uint32_t ffloor (uint32_t);
+int ffloorCheck (uni);
 
 #endif
