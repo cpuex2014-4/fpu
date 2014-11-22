@@ -118,6 +118,13 @@ int main (int argc, char* argv[]) {
       printf("float:%.10f int:%u\n", a.f, a.u);
     }
 
+  }else if (strcmp(argv[1], "float") == 0) {
+    uni a;
+    while(scanf("%f", &a.f) == 1) {
+      print_bits(a);
+      printf("float:%.10f int:%u hex:%08x\n", a.f, a.u, a.u);
+    }
+
   } else if (strcmp(argv[1], "-all") == 0 && argc == 3) {
     uni a;
     uint32_t i = 0;

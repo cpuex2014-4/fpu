@@ -68,6 +68,12 @@ architecture Behavior of FPUCORE is
         output : out std_logic_vector(31 downto 0));
   end component;
 
+  component FSQRT is
+  Port (input  : in  std_logic_vector(31 downto 0);
+        clk    : in std_logic;
+        output : out std_logic_vector(31 downto 0));
+  end component;
+
   component FTOI is
   Port (input  : in  std_logic_vector(31 downto 0);
         output : out std_logic_vector(31 downto 0));
@@ -93,7 +99,7 @@ architecture Behavior of FPUCORE is
 
   signal in1_std, in2_std, neg_in2: int32;
   signal fadd_out, fsub_out, fmul_out, fdiv_out: int32;
-  signal itof_out, ftoi_out: int32;
+  signal itof_out, ftoi_out, fsqrt_out: int32;
   signal feq_out,  flt_out, fle_out: std_logic;
 begin
   add: FADD port map (
@@ -124,6 +130,10 @@ begin
     input=>in1_std, output => ftoi_out
   );
 
+  sqrt: FSQRT port map (
+    input=>in1_std, output => fsqrt_out
+  );
+
   equal: FEQ port map (
     input1=>in1_std, input2=> in2_std, output=> feq_out
   );
@@ -142,12 +152,13 @@ begin
   neg_in2 <= (not in2_std(31))&in2_std(30 downto 0);
 
 
-  out_1 <= unsigned(fadd_out) when op = "000000" else -- fadd (2 clock)
-           unsigned(fsub_out) when op = "000001" else -- fsub (2 clock)
-           unsigned(fmul_out) when op = "000010" else -- fmul (2 clock)
-           unsigned(fdiv_out) when op = "000011" else -- fdiv (8 clock)
-           unsigned(itof_out) when op = "100000" else -- itof (5 clock)
-           unsigned(ftoi_out) when op = "000100" else -- ftoi (1 clock)
+  out_1 <= unsigned(fadd_out)  when op = "000000" else -- fadd  (2 clock)
+           unsigned(fsub_out)  when op = "000001" else -- fsub  (2 clock)
+           unsigned(fmul_out)  when op = "000010" else -- fmul  (2 clock)
+           unsigned(fdiv_out)  when op = "000011" else -- fdiv  (8 clock)
+           unsigned(itof_out)  when op = "100000" else -- itof  (5 clock)
+           unsigned(ftoi_out)  when op = "100100" else -- ftoi  (1 clock)
+           unsigned(fsqrt_out) when op = "000100" else -- fsqrt (5 clock)
            x"00000000";
 
   cond <= feq_out when op = "110010" else -- feq
