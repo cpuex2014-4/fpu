@@ -27,7 +27,7 @@ architecture Behavior of top is
   signal ans:int32 := (others=>'0');
   signal clk:std_logic := '0';
   file  read_file  : text open read_mode  is "test.in";
-  file  write_file : text open write_mode is "test.out";
+  file  write_file : text open write_mode is "test_fadd.out";
 begin
   hoge: FADD port map (input1=>a,input2=>b,clk=>clk,output=>ans);
 

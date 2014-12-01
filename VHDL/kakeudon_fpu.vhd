@@ -6,6 +6,16 @@ use IEEE.std_logic_unsigned.all;
 
 package kakeudon_fpu is
   subtype int32 is std_logic_vector(31 downto 0);
+
+  -- FADD --
+  component FADD is
+  Port (
+    input1 : in int32;
+    input2 : in int32;
+    clk: std_logic;
+    output : out int32);
+  end component;
+
   -- FMUL --
   component FMUL is
   Port (
