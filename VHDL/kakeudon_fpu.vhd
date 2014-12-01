@@ -48,4 +48,9 @@ package kakeudon_fpu is
         output : out std_logic_vector(31 downto 0));
   end component;
 
+  component FTOI is
+  Port (input  : in  std_logic_vector(31 downto 0);
+        output : out std_logic_vector(31 downto 0));
+  end component;
+
 end package kakeudon_fpu;

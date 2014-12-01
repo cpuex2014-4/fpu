@@ -15,7 +15,7 @@ architecture RTL of FTOI is
   signal aExp: int32;
   signal sign: std_logic;
 begin
-  fuga: process(input)
+  ftoi_proc: process(input)
     variable ans, frac: int32;
     variable shift : int32;
     variable shifti : integer;
@@ -47,5 +47,5 @@ begin
         output <= ans;
       end if;
     end if;
-  end process fuga;
+  end process ftoi_proc;
 end architecture RTL;
