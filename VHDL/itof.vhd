@@ -1,9 +1,7 @@
 library IEEE;
 use IEEE.std_logic_1164.all;
-use IEEE.std_logic_misc.all;
-use IEEE.std_logic_arith.all;
-use IEEE.numeric_std.all;
 use IEEE.std_logic_unsigned.all;
+use work.kakeudon_fpu.all;
 
 entity ITOF is
   Port (input  : in  std_logic_vector(31 downto 0);
@@ -12,16 +10,11 @@ entity ITOF is
 end entity ITOF;
 
 architecture RTL of ITOF is
-  subtype int32 is std_logic_vector(31 downto 0);
-  component FADD is
-    port (
-      input1 : in int32;
-      input2 : in int32;
-      clk: std_logic;
-      output : out int32);
-  end component;
   signal t: int32;
   signal low0, high0, low, high, a, b, a1, b1, ans: int32;
+  signal sign1 : std_logic;
+  signal sign2 : std_logic;
+  signal sign3 : std_logic;
 begin
   lowsub:  FADD port map (input1=> low,  input2=> x"cb000000", clk => clk, output=>a1);
   highsub: FADD port map (input1=> high, input2=> x"d6800000", clk => clk, output=>b1);
@@ -37,23 +30,18 @@ begin
   high <= high0 + x"56800000";
 
 
+  output <= sign3&ans(30 downto 0);
 
   itof_proc: process(input, clk)
-    variable sign1 : std_logic;
-    variable sign2 : std_logic;
-    variable sign3 : std_logic;
-    variable sign4 : std_logic;
-    variable sign5 : std_logic;
+    variable s1,s2: std_logic;
   begin
     if rising_edge(clk) then
+      s1 := sign1;
+      s2 := sign2;
 
-      output <= sign5&ans(30 downto 0);
-
-      sign5 := sign4;
-      sign4 := sign3;
-      sign3 := sign2;
-      sign2 := sign1;
-      sign1 := input(31);
+      sign3 <= s2;
+      sign2 <= s1;
+      sign1 <= input(31);
 
       a <= a1;
       b <= b1;
