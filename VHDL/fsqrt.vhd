@@ -4,6 +4,7 @@ use IEEE.std_logic_unsigned.all;
 use IEEE.std_logic_arith.all;
 use IEEE.std_logic_textio.all;
 use STD.textio.all;
+use work.kakeudon_fpu.all;
 
 entity FSQRT is
   Port (input  : in  std_logic_vector(31 downto 0);
@@ -28,29 +29,15 @@ architecture RTL of FSQRT is
 
   signal RAM : RamType := InitRamFromFile("fsqrtTable.data");
 
-  component FADD is
-    port (
-      input1 : in int32;
-      input2 : in int32;
-      clk: std_logic;
-      output : out int32);
-  end component;
-  component FMUL is
-    port (
-      input1 : in int32;
-      input2 : in int32;
-      clk: std_logic;
-      output : out int32);
-  end component;
   signal a, reg, b, ax_in, ax_out, axb : int32;
   signal in1 : int32 := (31 downto 0 => '0');
   signal in2 : int32 := (31 downto 0 => '0');
   signal in3 : int32 := (31 downto 0 => '0');
   signal in4 : int32 := (31 downto 0 => '0');
-  signal in5 : int32 := (31 downto 0 => '0');
-  signal idx1, idx2, d, iexp1, iexp2: integer := 0;
+  signal iexp1, iexp2: integer := 0;
   signal exp, exp1: std_logic_vector(22 downto 0);
 begin
+
   ax: FMUL port map (
     input1 => a, input2 => reg, clk => clk, output => ax_out
   );
@@ -58,40 +45,41 @@ begin
     input1 => ax_in, input2 => b, clk => clk, output => axb
   );
 
-  reg  <= "01000000"&input(23 downto 0);
-  idx1 <= conv_integer(input(23 downto 13)) * 2;
-  a <= to_stdlogicvector(RAM(idx1));
 
-  idx2 <= conv_integer(in3(23 downto 13)) * 2 + 1;
-  b <= to_stdlogicvector(RAM(idx2));
-
-  iexp1 <= conv_integer(in5(30 downto 23)) + 1;
+  iexp1 <= conv_integer(in4(30 downto 23)) + 1;
   exp1 <= conv_std_logic_vector(iexp1, 23);
   iexp2 <= conv_integer(exp1(8 downto 1)) + 63;
   exp <= conv_std_logic_vector(iexp2, 23);
+
   output <=
     -- sqrt(+|- 0) = +|-0
-    in5(31)&(30 downto 0 => '0') when in5(30 downto 23) = x"00" else
+    in4(31)&(30 downto 0 => '0') when in4(30 downto 23) = x"00" else
     -- sqrt(negative) = NaN
-    x"ffffffff" when in5(31) = '1' else
+    x"ffffffff" when in4(31) = '1' else
     -- sqrt(NaN) = NaN
-    x"ffffffff" when in5(30 downto 23)=x"ff" and in5(22 downto 0) /= (22 downto 0 => '0') else
+    x"ffffffff" when in4(30 downto 23)=x"ff" and in4(22 downto 0) /= (22 downto 0 => '0') else
     -- sqrt(Inf) = Inf
-    x"7f800000" when in5(30 downto 23) = x"ff" else
+    x"7f800000" when in4(30 downto 23) = x"ff" else
     -- normal
     '0'&exp(7 downto 0)&axb(22 downto 0);
 
   fsqrt_proc: process(input, clk)
+    variable idx1, idx2 : integer := 0;
   begin
     if rising_edge(clk) then -- work in 5 clocks
+        reg  <= "01000000"&input(23 downto 0);
+        idx1 := conv_integer(input(23 downto 13)) * 2;
+        a <= to_stdlogicvector(RAM(idx1));
 
-      in5 <= in4;
-      in4 <= in3;
-      in3 <= in2;
-      in2 <= in1;
-      in1 <= input;
+        idx2 := conv_integer(in2(23 downto 13)) * 2 + 1;
+        b <= to_stdlogicvector(RAM(idx2));
 
-      ax_in <= ax_out;
+        in4 <= in3;
+        in3 <= in2;
+        in2 <= in1;
+        in1 <= input;
+
+        ax_in <= ax_out;
 
     end if;
   end process;

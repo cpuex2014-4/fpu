@@ -60,5 +60,10 @@ package kakeudon_fpu is
         output : out std_logic_vector(31 downto 0));
   end component;
 
+  component FSQRT is
+  Port (input  : in  std_logic_vector(31 downto 0);
+        clk    : in  std_logic;
+        output : out std_logic_vector(31 downto 0));
+  end component;
 
 end package kakeudon_fpu;
