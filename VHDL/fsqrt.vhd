@@ -28,6 +28,8 @@ architecture RTL of FSQRT is
   end function;
 
   signal RAM : RamType := InitRamFromFile("fsqrtTable.data");
+  attribute ram_style : string;
+  attribute ram_style of RAM: signal is "block";
 
   signal a, reg, b, ax_in, ax_out, axb : int32;
   signal in1 : int32 := (31 downto 0 => '0');
