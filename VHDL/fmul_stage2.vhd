@@ -3,7 +3,7 @@ use IEEE.std_logic_1164.all;
 use IEEE.std_logic_misc.all;
 use IEEE.std_logic_arith.all;
 use IEEE.std_logic_unsigned.all;
-
+use work.kakeudon_fpu.all;
 entity FMUL_STAGE2 is
   Port (input1   : in  std_logic_vector (31 downto 0);
         input2   : in  std_logic_vector (31 downto 0);
