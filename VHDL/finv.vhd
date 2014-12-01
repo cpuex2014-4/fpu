@@ -4,6 +4,7 @@ use IEEE.std_logic_unsigned.all;
 use IEEE.std_logic_arith.all;
 use IEEE.std_logic_textio.all;
 use STD.textio.all;
+use work.kakeudon_fpu.all;
 
 entity FINV is
   Port (input  : in  std_logic_vector(31 downto 0);
@@ -27,28 +28,14 @@ architecture RTL of FINV is
   end function;
 
   signal RAM : RamType := InitRamFromFile("finvTable.data");
-
-  component FADD is
-    port (
-      input1 : in int32;
-      input2 : in int32;
-      clk: std_logic;
-      output : out int32);
-  end component;
-  component FMUL is
-    port (
-      input1 : in int32;
-      input2 : in int32;
-      clk: std_logic;
-      output : out int32);
-  end component;
+  attribute ram_style : string;
+  attribute ram_style of RAM: signal is "block";
+  signal d:integer;
   signal a, reg, b, ax_in, ax_out, axb : int32;
   signal in1 : int32 := (31 downto 0 => '0');
   signal in2 : int32 := (31 downto 0 => '0');
   signal in3 : int32 := (31 downto 0 => '0');
   signal in4 : int32 := (31 downto 0 => '0');
-  signal in5 : int32 := (31 downto 0 => '0');
-  signal idx1, idx2, d: integer := 0;
   signal exp: std_logic_vector(22 downto 0);
 begin
   ax: FMUL port map (
@@ -58,32 +45,34 @@ begin
     input1 => ax_in, input2 => b, clk => clk, output => axb
   );
 
-  reg  <= "001111111"&input(22 downto 0);
-  idx1 <= conv_integer(input(22 downto 12)) * 2;
-  a <= to_stdlogicvector(RAM(idx1));
 
-  idx2 <= conv_integer(in3(22 downto 12)) * 2 + 1;
-  b <= to_stdlogicvector(RAM(idx2));
-
-  d <= conv_integer(in5(30 downto 23)) - 127;
+  d <= conv_integer(in4(30 downto 23)) - 127;
   exp <= axb(30 downto 23) - conv_std_logic_vector(d, 23);
 
   output <=
     -- 1/NaN = NaN
-    x"ffffffff" when in5(30 downto 23)=x"ff" and in5(22 downto 0) /= (22 downto 0 => '0') else
+    x"ffffffff" when in4(30 downto 23)=x"ff" and in4(22 downto 0) /= (22 downto 0 => '0') else
     -- 1/Inf = 0
-    in5(31)&(30 downto 0 => '0') when in5(30 downto 23) = x"ff" else
+    in4(31)&(30 downto 0 => '0') when in4(30 downto 23) = x"ff" else
     -- 1/0   = Inf
-    in5(31)&x"ff"&(22 downto 0 => '0') when in5(30 downto 23) = x"00" else
+    in4(31)&x"ff"&(22 downto 0 => '0') when in4(30 downto 23) = x"00" else
     -- underflow -> 0
-    in5(31)&x"00"&axb(22 downto 0) when conv_integer(axb(30 downto 23)) < d else
+    in4(31)&x"00"&axb(22 downto 0) when conv_integer(axb(30 downto 23)) < d else
     -- normal
-    in5(31)&exp(7 downto 0)&axb(22 downto 0);
+    in4(31)&exp(7 downto 0)&axb(22 downto 0);
 
   finv_proc: process(input, clk)
+      variable idx1, idx2: integer := 0;
   begin
     if rising_edge(clk) then -- work in 5 clocks
-      in5 <= in4;
+
+      reg  <= "001111111"&input(22 downto 0);
+      idx1 := conv_integer(input(22 downto 12)) * 2;
+      a <= to_stdlogicvector(RAM(idx1));
+
+      idx2 := conv_integer(in2(22 downto 12)) * 2 + 1;
+      b <= to_stdlogicvector(RAM(idx2));
+
       in4 <= in3;
       in3 <= in2;
       in2 <= in1;
