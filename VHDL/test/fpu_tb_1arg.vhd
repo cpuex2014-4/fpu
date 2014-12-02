@@ -6,6 +6,7 @@ use IEEE.std_logic_arith.all;
 use IEEE.std_logic_misc.all;
 use ieee.std_logic_textio.all;
 use std.textio.all;
+library work;
 use work.kakeudon_fpu.all;
 
 entity top is
@@ -18,10 +19,14 @@ architecture Behavior of top is
   signal b:int32 := (others=>'0');
   signal ans:int32 := (others=>'0');
   signal clk:std_logic := '0';
-  file  read_file  : text open read_mode  is "test_c.in";
-  file  write_file : text open write_mode is "test_fsqrt.out";
+  file  read_file  : text open read_mode  is "test1.in";
+
+  -- Please change file name
+  file  write_file : text open write_mode is "test_finv.out";
 begin
-  hoge: FSQRT port map (input=>a,clk=>clk,output=>ans);
+
+  -- Please change port map
+  fpu_test: FINV port map (input=>a,clk=>clk,output=>ans);
 
   readProc:process(clk)
     variable lin : line;
