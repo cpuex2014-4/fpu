@@ -4,6 +4,7 @@ use IEEE.std_logic_1164.all;
 use IEEE.numeric_std.all;
 use IEEE.std_logic_arith.all;
 use IEEE.std_logic_misc.all;
+use work.kakeudon_fpu.all;
 
 -- FAdd
 entity FADD is
@@ -19,18 +20,12 @@ end FADD;
 -- exp : 30 downto 23  ( 8bit)
 -- frac: 22 downto 0
 architecture RTL of FADD is
-  subtype int32 is std_logic_vector(31 downto 0);
   constant ff32  : int32 := (23 downto 0 => '0')&x"ff"; --256
   constant nan32 : int32 := (others=>'1');
   constant zero32 : int32 := (others=>'0');
   constant minusZero : int32 := x"80000000";
   constant inf32 : int32 := x"7f800000";
   constant minusInf : int32 := x"ff800000";
-
-
-
-
-
   function getFrac (a : int32)
     return std_logic_vector is
   begin
@@ -318,19 +313,15 @@ architecture RTL of FADD is
 
     return ans;
   end faddMain2;
+  signal input1_1, input2_1, frac1 : int32;
 begin
-  proc:process(input1,input2, clk)
-    variable va1, vb1,va2,vb2: int32 := (others=>'0');
-    variable frac1, frac2: int32 := (others=>'0');
+  proc:process(clk)
   begin
     if rising_edge(clk) then
-      va2 := va1;
-      vb2 := vb1;
-      frac2 := frac1;
-      va1 := input1;
-      vb1 := input2;
-      frac1 := faddMain1(va1, vb1);
-      output <= faddMain2(va2, vb2, frac2);
+      input1_1 <= input1;
+      input2_1 <= input2;
+      frac1 <= faddMain1(input1, input2);
     end if;
   end process;
+  output <= faddMain2(input1_1, input2_1, frac1);
 end RTL;
