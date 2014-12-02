@@ -60,6 +60,13 @@ package kakeudon_fpu is
         output : out std_logic_vector(31 downto 0));
   end component;
 
+  component FDIV is
+  Port (input1 : in  std_logic_vector(31 downto 0);
+        input2  : in  std_logic_vector(31 downto 0);
+        clk : in std_logic;
+        output : out std_logic_vector(31 downto 0));
+  end component FDIV;
+
   component FSQRT is
   Port (input  : in  std_logic_vector(31 downto 0);
         clk    : in  std_logic;

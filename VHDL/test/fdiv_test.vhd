@@ -7,20 +7,15 @@ use IEEE.std_logic_misc.all;
 use ieee.std_logic_textio.all;
 use std.textio.all;
 
+library work;
+use work.kakeudon_fpu.all;
+
 entity top is
   Port ( MCLK1 : in  STD_LOGIC;
          RS_TX : out  STD_LOGIC);
 end top;
 
 architecture Behavior of top is
-  subtype int32 is std_logic_vector(31 downto 0);
-  component FDIV is
-  Port (
-    input1 : in  int32;
-    input2 : in  int32;
-    clk: in std_logic;
-    output : out int32);
-  end component;
   signal a:int32 := (others=>'0');
   signal b:int32 := (others=>'0');
   signal ans:int32 := (others=>'0');
