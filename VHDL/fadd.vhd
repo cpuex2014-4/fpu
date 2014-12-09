@@ -1,18 +1,15 @@
 library IEEE;
-use IEEE.std_logic_unsigned.all;
 use IEEE.std_logic_1164.all;
 use IEEE.numeric_std.all;
-use IEEE.std_logic_arith.all;
-use IEEE.std_logic_misc.all;
 use work.kakeudon_fpu.all;
 
 -- FAdd
 entity FADD is
   port (
-    input1 : in  std_logic_vector (31 downto 0);
-    input2 : in  std_logic_vector (31 downto 0);
+    input1 : in  unsigned (31 downto 0);
+    input2 : in  unsigned (31 downto 0);
     clk: in std_logic;
-    output : out std_logic_vector (31 downto 0)
+    output : out unsigned (31 downto 0)
     );
 end FADD;
 
@@ -20,31 +17,31 @@ end FADD;
 -- exp : 30 downto 23  ( 8bit)
 -- frac: 22 downto 0
 architecture RTL of FADD is
-  constant ff32  : int32 := (23 downto 0 => '0')&x"ff"; --256
-  constant nan32 : int32 := (others=>'1');
-  constant zero32 : int32 := (others=>'0');
-  constant minusZero : int32 := x"80000000";
-  constant inf32 : int32 := x"7f800000";
-  constant minusInf : int32 := x"ff800000";
-  function getFrac (a : int32)
-    return std_logic_vector is
+  constant ff32  : unsigned_word := (23 downto 0 => '0')&x"ff"; --256
+  constant nan32 : unsigned_word := (others=>'1');
+  constant zero32 : unsigned_word := (others=>'0');
+  constant minusZero : unsigned_word := x"80000000";
+  constant inf32 : unsigned_word := x"7f800000";
+  constant minusInf : unsigned_word := x"ff800000";
+  function getFrac (a : unsigned_word)
+    return unsigned is
   begin
     return (8 downto 0 => '0')&a(22 downto 0);
   end getFrac;
 
-  function getExp (a : int32)
-    return std_logic_vector is
+  function getExp (a : unsigned_word)
+    return unsigned is
   begin
     return (23 downto 0 => '0')&a(30 downto 23);
   end getExp;
 
-  function getSign (a : int32)
+  function getSign (a : unsigned_word)
     return std_logic is
   begin
     return a (31);
   end getSign;
 
-  function isNaN (a : int32)
+  function isNaN (a : unsigned_word)
     return std_logic is
   begin
     if getExp(a) = ff32 and getFrac(a) /= zero32 then
@@ -54,7 +51,7 @@ architecture RTL of FADD is
     end if;
   end isNan;
 
-  function isZero (a : int32)
+  function isZero (a : unsigned_word)
     return std_logic is
   begin
     if getExp(a) = zero32 and getFrac(a) = zero32 then
@@ -64,7 +61,7 @@ architecture RTL of FADD is
     end if;
   end isZero;
 
-  function isInf (a : int32)
+  function isInf (a : unsigned_word)
     return std_logic is
   begin
     if getExp(a) = ff32 and getFrac(a) = zero32 then
@@ -74,8 +71,8 @@ architecture RTL of FADD is
     end if;
   end isInf;
 
-  function ops (a : int32;b : int32)
-    return int32 is
+  function ops (a : unsigned_word;b : unsigned_word)
+    return unsigned_word is
   begin
     if isNaN(a)='1' then
       return nan32;
@@ -109,52 +106,52 @@ architecture RTL of FADD is
     return x"DEADBEEF";
   end ops;
 
-  function log2 (frac : int32)
-    return int32 is
+  function log2 (frac : unsigned_word)
+    return unsigned_word is
     variable i : integer := 31;
   begin
     while (frac(i) = '0' and i /= 0) loop
       i := i-1;
     end loop;
-    return conv_std_logic_vector(i,32);
+    return to_unsigned(i,32);
   end;
 
-  function loadFrac (a: int32; b: int32)
-    return std_logic_vector is
-    variable r : int32;
+  function loadFrac (a: unsigned_word; b: unsigned_word)
+    return unsigned is
+    variable r : unsigned_word;
   begin
     r := a;
     r(22 downto 0) := b(22 downto 0);
     return r;
   end loadFrac;
 
-  function loadExp (a: int32; b: int32)
-    return std_logic_vector is
-    variable r : int32;
+  function loadExp (a: unsigned_word; b: unsigned_word)
+    return unsigned is
+    variable r : unsigned_word;
   begin
     r := a;
     r(30 downto 23) := b(7 downto 0);
     return r;
   end loadExp;
 
-  function loadSign (a: int32; b: std_logic)
-    return std_logic_vector is
-    variable r : int32;
+  function loadSign (a: unsigned_word; b: std_logic)
+    return unsigned is
+    variable r : unsigned_word;
   begin
     r := a;
     r(31) := b;
     return r;
   end loadSign;
-  function faddMain1 (input1: int32; input2: int32)
-    return std_logic_vector is
+  function faddMain1 (input1: unsigned_word; input2: unsigned_word)
+    return unsigned is
     variable tmp1 : integer;
-    variable d  : int32;
-    variable a : int32 := (others=>'0');
-    variable b : int32 := (others=>'0');
-    variable na : int32;
-    variable nb : int32;
+    variable d  : unsigned_word;
+    variable a : unsigned_word := (others=>'0');
+    variable b : unsigned_word := (others=>'0');
+    variable na : unsigned_word;
+    variable nb : unsigned_word;
     variable flg : std_logic := '0';
-    variable frac: int32 := (others=>'0');
+    variable frac: unsigned_word := (others=>'0');
 
   begin
     -- |a| >= |b|
@@ -176,10 +173,10 @@ architecture RTL of FADD is
     end if;
     -- 共通
 
-    na:= shl(getFrac(a),x"3");
+    na:= shift_left(getFrac(a), 3);
     na(26) := '1';
 
-    nb:= shl(getFrac(b),x"3");
+    nb:= shift_left(getFrac(b), 3);
     nb(26) := '1';
 
     d := getExp(a) - getExp(b);
@@ -189,10 +186,18 @@ architecture RTL of FADD is
     end if;
 
     -- (30 downto 0) is for ghdl
-    tmp1 := conv_integer(d(30 downto 0)) -1;
-    flg := or_reduce(nb(tmp1 downto 0));
+    if d = 0 then
+      flg := '0';
+    else
+      tmp1 := to_integer(d(30 downto 0))-1;
+      if nb(tmp1 downto 0) = 0 then
+        flg := '0';
+      else
+        flg := '1';
+      end if;
+    end if;
 
-    nb := shr(nb, d);
+    nb := shift_right(nb, to_integer(unsigned(d)));
 
     nb(0) := nb(0) or flg;
 
@@ -205,20 +210,20 @@ architecture RTL of FADD is
     return frac;
   end faddMain1;
 
-  function faddMain2 (input1: int32; input2: int32; frac1: int32)
-    return std_logic_vector is
-    variable a : int32 := (others=>'0');
-    variable b : int32 := (others=>'0');
-    variable frac: int32 := (others=>'0');
-    variable exp:  int32 := (others=>'0');
-    variable d  : int32;
+  function faddMain2 (input1: unsigned_word; input2: unsigned_word; frac1: unsigned_word)
+    return unsigned is
+    variable a : unsigned_word := (others=>'0');
+    variable b : unsigned_word := (others=>'0');
+    variable frac: unsigned_word := (others=>'0');
+    variable exp:  unsigned_word := (others=>'0');
+    variable d  : unsigned_word;
     variable ulp:   std_logic := '0';
     variable guard: std_logic := '0';
     variable round: std_logic := '0';
     variable stick: std_logic := '0';
     variable tmp:   std_logic := '0';
-    variable ans : int32 := (others=>'0');
-        variable t:    int32 := (others=>'0');
+    variable ans : unsigned_word := (others=>'0');
+    variable t:    unsigned_word := (others=>'0');
   begin
 
     -- 共通部分 --
@@ -263,7 +268,7 @@ architecture RTL of FADD is
     if frac = 0 then
       return zero32;
     elsif t < 26 then
-      frac := shl(frac, 26-t);
+      frac := shift_left(frac, 26-to_integer(signed(t)));
       if (getExp(a) <= (26-t)) then
         if getSign(a)='1' then
           return minusZero;
@@ -308,12 +313,12 @@ architecture RTL of FADD is
       end if;
     end if;
 
-    ans := loadFrac(ans, shr(frac, x"3"));
+    ans := loadFrac(ans, shift_right(frac, 3));
     ans := loadSign(ans, getSign(a));
 
     return ans;
   end faddMain2;
-  signal input1_1, input2_1, frac1 : int32;
+  signal input1_1, input2_1, frac1 : unsigned_word;
 begin
   proc:process(clk)
   begin

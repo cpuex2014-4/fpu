@@ -1,17 +1,17 @@
 library IEEE;
 use IEEE.std_logic_1164.all;
-use IEEE.std_logic_unsigned.all;
+use IEEE.numeric_std.all;
 use work.kakeudon_fpu.all;
 
 entity ITOF is
-  Port (input  : in  std_logic_vector(31 downto 0);
+  Port (input  : in  unsigned(31 downto 0);
         clk : in std_logic;
-        output : out std_logic_vector(31 downto 0));
+        output : out unsigned(31 downto 0));
 end entity ITOF;
 
 architecture RTL of ITOF is
-  signal t: int32;
-  signal low0, high0, low, high, a, b, a1, b1, ans: int32;
+  signal t: unsigned_word;
+  signal low0, high0, low, high, a, b, a1, b1, ans: unsigned_word;
   signal sign1 : std_logic;
   signal sign2 : std_logic;
   signal sign3 : std_logic;

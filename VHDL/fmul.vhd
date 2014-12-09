@@ -1,18 +1,19 @@
 library IEEE;
 use IEEE.std_logic_1164.all;
+use IEEE.numeric_std.all;
 use work.kakeudon_fpu.all;
 
 entity FMUL is
-  Port (input1   : in  std_logic_vector (31 downto 0);
-        input2   : in  std_logic_vector (31 downto 0);
+  Port (input1   : in  unsigned (31 downto 0);
+        input2   : in  unsigned (31 downto 0);
         clk: in std_logic;
-        output : out std_logic_vector (31 downto 0));
+        output : out unsigned (31 downto 0));
 end entity FMUL;
 
 architecture RTL of FMUL is
-  signal input1_1, input2_1, input1_2, input2_2: int32;
-  signal hh_1, hl1_1, hl2_1, hh_2, hl1_2, hl2_2: std_logic_vector(35 downto 0);
-  signal sumExp_1, sumExp_2: int32;
+  signal input1_1, input2_1, input1_2, input2_2: unsigned_word;
+  signal hh_1, hl1_1, hl2_1, hh_2, hl1_2, hl2_2: unsigned(35 downto 0);
+  signal sumExp_1, sumExp_2: unsigned_word;
 begin
      stage1: FMUL_STAGE1 port map(
         input1=>input1,
@@ -31,7 +32,7 @@ begin
         output => output);
 
   fmul_proc:process(input1, input2, clk)
-    variable in_1, in_2: int32;
+    variable in_1, in_2: unsigned_word;
   begin
     if rising_edge(clk) then
       in_1 := input1_1;

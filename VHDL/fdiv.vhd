@@ -1,25 +1,20 @@
 library IEEE;
 use IEEE.std_logic_1164.all;
-use IEEE.std_logic_misc.all;
-use IEEE.std_logic_arith.all;
 use IEEE.numeric_std.all;
-use IEEE.std_logic_unsigned.all;
-
-library work;
 use work.kakeudon_fpu.all;
 
 entity FDIV is
-  Port (input1 : in  std_logic_vector(31 downto 0);
-        input2  : in  std_logic_vector(31 downto 0);
+  Port (input1 : in  unsigned(31 downto 0);
+        input2  : in  unsigned(31 downto 0);
         clk : in std_logic;
-        output : out std_logic_vector(31 downto 0));
+        output : out unsigned(31 downto 0));
 end entity FDIV;
 
 architecture RTL of FDIV is
-  subtype int32 is std_logic_vector(31 downto 0);
-  signal a, b: int32 := (others => '0');
-  signal a1, a2, a3, a4, a5: int32 := (others => '0');
-  signal inv_in, inv_out, ans: int32;
+  subtype unsigned_word is unsigned(31 downto 0);
+  signal a, b: unsigned_word := (others => '0');
+  signal a1, a2, a3, a4, a5: unsigned_word := (others => '0');
+  signal inv_in, inv_out, ans: unsigned_word;
 begin
   inv: FINV port map (
     input => b, clk => clk, output => inv_out
