@@ -22,9 +22,11 @@ begin
   mul: FMUL port map (
     input1 => a5, input2 => inv_in, clk => clk, output => ans
   );
-  a <= input1(31)&(30 downto 0 => '0') when input1(30 downto 23) = x"00" else
+  a <= (others => 'X') when TO_01(input1, 'X')(0) = 'X' else
+       input1(31)&(30 downto 0 => '0') when input1(30 downto 23) = x"00" else
        input1;
-  b <= input2(31)&(30 downto 0 => '0') when input2(30 downto 23) = x"00" else
+  b <= (others => 'X') when TO_01(input2, 'X')(0) = 'X' else
+       input2(31)&(30 downto 0 => '0') when input2(30 downto 23) = x"00" else
        input2;
   output <= ans;
 
