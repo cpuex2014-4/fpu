@@ -35,7 +35,6 @@ architecture RTL of FSQRT is
   signal in2 : unsigned_word := (31 downto 0 => '0');
   signal in3 : unsigned_word := (31 downto 0 => '0');
   signal in4 : unsigned_word := (31 downto 0 => '0');
-  signal iexp1, iexp2: integer := 0;
   signal exp, exp1: unsigned(22 downto 0);
 begin
 
@@ -47,12 +46,13 @@ begin
   );
 
 
-  iexp1 <= to_integer(in4(30 downto 23)) + 1;
-  exp1 <= to_unsigned(iexp1, 23);
-  iexp2 <= to_integer(exp1(8 downto 1)) + 63;
-  exp <= to_unsigned(iexp2, 23);
+  exp1 <= (others => 'X') when TO_01(in4, 'X')(0) = 'X' else
+          to_unsigned(to_integer(in4(30 downto 23)) + 1, 23);
+  exp <= (others => 'X') when TO_01(exp1, 'X')(0) = 'X' else
+         to_unsigned(to_integer(exp1(8 downto 1)) + 63, 23);
 
   output <=
+    (others => 'X') when TO_01(in4, 'X')(0) = 'X' else
     -- sqrt(+|- 0) = +|-0
     in4(31)&(30 downto 0 => '0') when in4(30 downto 23) = x"00" else
     -- sqrt(negative) = NaN
@@ -69,11 +69,19 @@ begin
   begin
     if rising_edge(clk) then -- work in 5 clocks
         reg  <= "01000000"&input(23 downto 0);
-        idx1 := to_integer(input(23 downto 13)) * 2;
-        a <= unsigned(to_stdlogicvector(RAM(idx1)));
+        if TO_01(input, 'X')(0) = 'X' then
+          a <= (others => 'X');
+        else
+          idx1 := to_integer(input(23 downto 13)) * 2;
+          a <= unsigned(to_stdlogicvector(RAM(idx1)));
+        end if;
 
-        idx2 := to_integer(in2(23 downto 13)) * 2 + 1;
-        b <= unsigned(to_stdlogicvector(RAM(idx2)));
+        if TO_01(in2, 'X')(0) = 'X' then
+          b <= (others => 'X');
+        else
+          idx2 := to_integer(in2(23 downto 13)) * 2 + 1;
+          b <= unsigned(to_stdlogicvector(RAM(idx2)));
+        end if;
 
         in4 <= in3;
         in3 <= in2;

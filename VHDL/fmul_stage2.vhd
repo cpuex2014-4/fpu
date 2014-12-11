@@ -37,21 +37,27 @@ begin
   a <= input1;
   b <= input2;
 
-  aNaN <= '1' when a(30 downto 23) = x"ff" and
+  aNaN <= 'X' when TO_01(a, 'X')(0) = 'X' else
+          '1' when a(30 downto 23) = x"ff" and
                    a(22 downto 0) /= 0 else
           '0';
-  bNaN <= '1' when b(30 downto 23) = x"ff" and
+  bNaN <= 'X' when TO_01(b, 'X')(0) = 'X' else
+          '1' when b(30 downto 23) = x"ff" and
                    b(22 downto 0) /= 0 else
           '0';
-  aInf <= '1' when a(30 downto 23) = x"ff" and
+  aInf <= 'X' when TO_01(a, 'X')(0) = 'X' else
+          '1' when a(30 downto 23) = x"ff" and
                    a(22 downto 0) = 0 else
           '0';
-  bInf <= '1' when b(30 downto 23) = x"ff" and
+  bInf <= 'X' when TO_01(b, 'X')(0) = 'X' else
+          '1' when b(30 downto 23) = x"ff" and
                    b(22 downto 0) = 0 else
           '0';
 
-  aZero <= '1' when a(30 downto 23) = x"00" else '0';
-  bZero <= '1' when b(30 downto 23) = x"00" else '0';
+  aZero <= 'X' when TO_01(a, 'X')(0) = 'X' else
+           '1' when a(30 downto 23) = x"00" else '0';
+  bZero <= 'X' when TO_01(b, 'X')(0) = 'X' else
+           '1' when b(30 downto 23) = x"00" else '0';
 
 
 
@@ -65,29 +71,39 @@ begin
 
   ansSign <= a(31) xor b(31);
 
-  signedInf  <= inf32  when ansSign='0' else
+  signedInf  <= (others => 'X') when TO_X01(ansSign)='X' else
+                inf32  when ansSign='0' else
                 minusInf;
-  signedZero <= zero32 when ansSign='0' else
+  signedZero <= (others => 'X') when TO_X01(ansSign)='X' else
+                zero32 when ansSign='0' else
                 minusZero;
 
 
 
 
-  underFlow <= '1' when (((sumExp) <= x"0000007e") and (mulFrac(25) = '1')) or
+  underFlow <= 'X' when TO_01(sumExp, 'X')(0) = 'X' or
+                        TO_X01(mulFrac(25)) = 'X' else
+               '1' when (((sumExp) <= x"0000007e") and (mulFrac(25) = '1')) or
                         (((sumExp) <= x"0000007f") and (mulFrac(25) = '0')) else
                '0';
 
-  exp  <= sumExp - x"7e" when mulFrac(25) = '1' else
+  exp  <= (others => 'X') when TO_X01(mulFrac(25)) = 'X' else
+          sumExp - x"7e" when mulFrac(25) = '1' else
           sumExp - x"7f";
 
   ansExp <= exp(7 downto 0);
 
-  ansFrac <= mulFrac(24 downto 2) when mulFrac(25) = '1' else
+  ansFrac <= (others => 'X') when TO_X01(mulFrac(25)) = 'X' else
+             mulFrac(24 downto 2) when mulFrac(25) = '1' else
              mulFrac(23 downto 1);
 
 
 
-  output <= nan32      when aNaN   = '1' or  bNaN  = '1'  or
+  output <= (others => 'X') when TO_X01(aNaN) = 'X' or TO_X01(bNaN) = 'X' or
+                                 TO_X01(aZero) = 'X' or TO_X01(bZero) = 'X' or
+                                 TO_X01(aInf) = 'X' or TO_X01(bInf) = 'X' else
+
+            nan32      when aNaN   = '1' or  bNaN  = '1'  or
                             (aZero = '1' and bInf  = '1') or
                             (aInf  = '1' and bZero = '1') else
 

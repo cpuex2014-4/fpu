@@ -154,6 +154,10 @@ architecture RTL of FADD is
     variable frac: unsigned_word := (others=>'0');
 
   begin
+    if TO_01(input1, 'X')(0) = 'X' or TO_01(input2, 'X')(0) = 'X' then
+      return (31 downto 0 => 'X');
+    end if;
+
     -- |a| >= |b|
 
     if input1(30 downto 0) >= input2(30 downto 0) then
@@ -225,6 +229,10 @@ architecture RTL of FADD is
     variable ans : unsigned_word := (others=>'0');
     variable t:    unsigned_word := (others=>'0');
   begin
+    if TO_01(input1, 'X')(0) = 'X' or TO_01(input2, 'X')(0) = 'X' or
+       TO_01(frac1, 'X')(0) = 'X' then
+      return (31 downto 0 => 'X');
+    end if;
 
     -- 共通部分 --
     frac := frac1;
