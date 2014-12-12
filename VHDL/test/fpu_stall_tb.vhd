@@ -6,26 +6,42 @@ use std.textio.all;
 library work;
 use work.kakeudon_fpu.all;
 
-entity fpu_tb_2args is
+entity fpu_stall_tb is
   Port ( MCLK1 : in  STD_LOGIC;
          RS_TX : out  STD_LOGIC);
-end fpu_tb_2args;
+end fpu_stall_tb;
 
-architecture Behavior of fpu_tb_2args is
+architecture Behavior of fpu_stall_tb is
   subtype int32 is std_logic_vector(31 downto 0);
   signal a:unsigned_word := (others=>'0');
   signal b:unsigned_word := (others=>'0');
   signal ans:unsigned_word := (others=>'0');
   signal clk:std_logic := '0';
+  signal o_ava, o_wnx, u_ava: std_logic;
+  signal o_tag : tomasulo_tag_t;
   file  read_file  : text open read_mode  is "test.in";
 
   -- Please change file name
-  file  write_file : text open write_mode is "test_fdiv.out";
+  file  write_file : text open write_mode is "test_fmul.out";
 begin
 
   -- Please change port map
-  fpu_test: FDIV port map (input1=>a, input2=>b, clk=>clk,output=>ans);
-
+  fpu_test: FMUL
+    generic map (last_unit => true)
+    port map (
+      clk,    -- clk
+      '0',    -- refetch
+      '1',    -- in_available
+      "10101", -- in_tag
+      a,      -- in0
+      b,      -- in1
+      o_ava,  -- out_available
+      o_tag,  -- out_tag
+      ans,    -- out_value,
+      '1',    -- cdb_writable
+      o_wnx,  -- cdb_writable_next
+      o_ava   -- unit_available
+    );
   readProc:process(clk)
     variable lin : line;
     variable ra : int32;
@@ -34,6 +50,8 @@ begin
     variable lout : line;
   begin
     if rising_edge(clk) then
+      hwrite(lout, std_logic_vector(ans));
+      writeline(write_file, lout);
       readline(read_file, lin);
       hread(lin, ra);
       a <= unsigned(ra);
@@ -41,8 +59,7 @@ begin
       b <= unsigned(rb);
     end if;
     if falling_edge(clk) then
-      hwrite(lout, std_logic_vector(ans));
-      writeline(write_file, lout);
+
     end if;
   end process;
 

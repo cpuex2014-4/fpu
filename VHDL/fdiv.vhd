@@ -19,7 +19,7 @@ begin
   inv: FINV port map (
     input => b, clk => clk, output => inv_out
   );
-  mul: FMUL port map (
+  mul: FMUL_OLD port map (
     input1 => a5, input2 => inv_in, clk => clk, output => ans
   );
   a <= (others => 'X') when TO_01(input1, 'X')(0) = 'X' else

@@ -37,7 +37,7 @@ architecture RTL of FINV is
   signal in4 : unsigned_word := (31 downto 0 => '0');
   signal exp: unsigned(7 downto 0);
 begin
-  ax: FMUL port map (
+  ax: FMUL_OLD port map (
     input1 => a, input2 => reg, clk => clk, output => ax_out
   );
   ax_b: FADD port map (
