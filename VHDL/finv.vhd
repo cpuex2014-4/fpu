@@ -49,7 +49,8 @@ begin
   exp <= axb(30 downto 23) - unsigned(d(7 downto 0));
 
   output <=
-    (others => 'X') when TO_01(in4, 'X')(0) = 'X' else
+    (others => 'X') when
+      TO_01(in4, 'X')(0) = 'X' or TO_01(d, 'X')(0) = 'X' else
     -- 1/NaN = NaN
     x"ffffffff" when in4(30 downto 23)=x"ff" and in4(22 downto 0) /= (22 downto 0 => '0') else
     -- 1/Inf = 0

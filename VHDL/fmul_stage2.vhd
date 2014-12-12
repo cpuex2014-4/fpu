@@ -101,7 +101,10 @@ begin
 
   output <= (others => 'X') when TO_X01(aNaN) = 'X' or TO_X01(bNaN) = 'X' or
                                  TO_X01(aZero) = 'X' or TO_X01(bZero) = 'X' or
-                                 TO_X01(aInf) = 'X' or TO_X01(bInf) = 'X' else
+                                 TO_X01(aInf) = 'X' or TO_X01(bInf) = 'X' or
+                                 TO_X01(underFlow) = 'X' or
+                                 TO_01(exp, 'X')(0) = 'X' or
+                                 TO_01(ansExp, 'X')(0) = 'X' else
 
             nan32      when aNaN   = '1' or  bNaN  = '1'  or
                             (aZero = '1' and bInf  = '1') or
