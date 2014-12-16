@@ -32,7 +32,8 @@ architecture RTL of FMUL is
 
   signal hh_2, hl1_2, hl2_2: unsigned(35 downto 0);
   signal sumExp_2 : unsigned32;
-  signal stage2_output: unsigned32;
+  signal stage2_output : unsigned32;
+  signal stage2_output_combinational: unsigned32;
 begin
   stage1: FMUL_STAGE1 port map(
     input1=>fmul_in0,
@@ -48,7 +49,7 @@ begin
     hl1 => hl1_2,
     hl2 => hl2_2,
     sumExp => sumExp_2,
-    output => stage2_output);
+    output => stage2_output_combinational);
 
   cdb_use <= cdb_writable when last_unit else
              cdb_writable and stage2_available;
@@ -77,6 +78,7 @@ begin
         -- stage2_stall
         else
           stage2_tag <= stage1_tag;
+          stage2_output <= stage2_output_combinational;
           stage2_available <= stage1_available;
         end if;
 
