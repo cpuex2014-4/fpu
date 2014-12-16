@@ -17,31 +17,31 @@ end FADD;
 -- exp : 30 downto 23  ( 8bit)
 -- frac: 22 downto 0
 architecture RTL of FADD is
-  constant ff32  : unsigned_word := (23 downto 0 => '0')&x"ff"; --256
-  constant nan32 : unsigned_word := (others=>'1');
-  constant zero32 : unsigned_word := (others=>'0');
-  constant minusZero : unsigned_word := x"80000000";
-  constant inf32 : unsigned_word := x"7f800000";
-  constant minusInf : unsigned_word := x"ff800000";
-  function getFrac (a : unsigned_word)
+  constant ff32  : unsigned32 := (23 downto 0 => '0')&x"ff"; --256
+  constant nan32 : unsigned32 := (others=>'1');
+  constant zero32 : unsigned32 := (others=>'0');
+  constant minusZero : unsigned32 := x"80000000";
+  constant inf32 : unsigned32 := x"7f800000";
+  constant minusInf : unsigned32 := x"ff800000";
+  function getFrac (a : unsigned32)
     return unsigned is
   begin
     return (8 downto 0 => '0')&a(22 downto 0);
   end getFrac;
 
-  function getExp (a : unsigned_word)
+  function getExp (a : unsigned32)
     return unsigned is
   begin
     return (23 downto 0 => '0')&a(30 downto 23);
   end getExp;
 
-  function getSign (a : unsigned_word)
+  function getSign (a : unsigned32)
     return std_logic is
   begin
     return a (31);
   end getSign;
 
-  function isNaN (a : unsigned_word)
+  function isNaN (a : unsigned32)
     return std_logic is
   begin
     if getExp(a) = ff32 and getFrac(a) /= zero32 then
@@ -51,7 +51,7 @@ architecture RTL of FADD is
     end if;
   end isNan;
 
-  function isZero (a : unsigned_word)
+  function isZero (a : unsigned32)
     return std_logic is
   begin
     if getExp(a) = zero32 and getFrac(a) = zero32 then
@@ -61,7 +61,7 @@ architecture RTL of FADD is
     end if;
   end isZero;
 
-  function isInf (a : unsigned_word)
+  function isInf (a : unsigned32)
     return std_logic is
   begin
     if getExp(a) = ff32 and getFrac(a) = zero32 then
@@ -71,8 +71,8 @@ architecture RTL of FADD is
     end if;
   end isInf;
 
-  function ops (a : unsigned_word;b : unsigned_word)
-    return unsigned_word is
+  function ops (a : unsigned32;b : unsigned32)
+    return unsigned32 is
   begin
     if isNaN(a)='1' then
       return nan32;
@@ -106,8 +106,8 @@ architecture RTL of FADD is
     return x"DEADBEEF";
   end ops;
 
-  function log2 (frac : unsigned_word)
-    return unsigned_word is
+  function log2 (frac : unsigned32)
+    return unsigned32 is
     variable i : integer := 31;
   begin
     while (frac(i) = '0' and i /= 0) loop
@@ -116,42 +116,42 @@ architecture RTL of FADD is
     return to_unsigned(i,32);
   end;
 
-  function loadFrac (a: unsigned_word; b: unsigned_word)
+  function loadFrac (a: unsigned32; b: unsigned32)
     return unsigned is
-    variable r : unsigned_word;
+    variable r : unsigned32;
   begin
     r := a;
     r(22 downto 0) := b(22 downto 0);
     return r;
   end loadFrac;
 
-  function loadExp (a: unsigned_word; b: unsigned_word)
+  function loadExp (a: unsigned32; b: unsigned32)
     return unsigned is
-    variable r : unsigned_word;
+    variable r : unsigned32;
   begin
     r := a;
     r(30 downto 23) := b(7 downto 0);
     return r;
   end loadExp;
 
-  function loadSign (a: unsigned_word; b: std_logic)
+  function loadSign (a: unsigned32; b: std_logic)
     return unsigned is
-    variable r : unsigned_word;
+    variable r : unsigned32;
   begin
     r := a;
     r(31) := b;
     return r;
   end loadSign;
-  function faddMain1 (input1: unsigned_word; input2: unsigned_word)
+  function faddMain1 (input1: unsigned32; input2: unsigned32)
     return unsigned is
     variable tmp1 : integer;
-    variable d  : unsigned_word;
-    variable a : unsigned_word := (others=>'0');
-    variable b : unsigned_word := (others=>'0');
-    variable na : unsigned_word;
-    variable nb : unsigned_word;
+    variable d  : unsigned32;
+    variable a : unsigned32 := (others=>'0');
+    variable b : unsigned32 := (others=>'0');
+    variable na : unsigned32;
+    variable nb : unsigned32;
     variable flg : std_logic := '0';
-    variable frac: unsigned_word := (others=>'0');
+    variable frac: unsigned32 := (others=>'0');
 
   begin
     if TO_01(input1, 'X')(0) = 'X' or TO_01(input2, 'X')(0) = 'X' then
@@ -214,20 +214,20 @@ architecture RTL of FADD is
     return frac;
   end faddMain1;
 
-  function faddMain2 (input1: unsigned_word; input2: unsigned_word; frac1: unsigned_word)
+  function faddMain2 (input1: unsigned32; input2: unsigned32; frac1: unsigned32)
     return unsigned is
-    variable a : unsigned_word := (others=>'0');
-    variable b : unsigned_word := (others=>'0');
-    variable frac: unsigned_word := (others=>'0');
-    variable exp:  unsigned_word := (others=>'0');
-    variable d  : unsigned_word;
+    variable a : unsigned32 := (others=>'0');
+    variable b : unsigned32 := (others=>'0');
+    variable frac: unsigned32 := (others=>'0');
+    variable exp:  unsigned32 := (others=>'0');
+    variable d  : unsigned32;
     variable ulp:   std_logic := '0';
     variable guard: std_logic := '0';
     variable round: std_logic := '0';
     variable stick: std_logic := '0';
     variable tmp:   std_logic := '0';
-    variable ans : unsigned_word := (others=>'0');
-    variable t:    unsigned_word := (others=>'0');
+    variable ans : unsigned32 := (others=>'0');
+    variable t:    unsigned32 := (others=>'0');
   begin
     if TO_01(input1, 'X')(0) = 'X' or TO_01(input2, 'X')(0) = 'X' or
        TO_01(frac1, 'X')(0) = 'X' then
@@ -326,7 +326,7 @@ architecture RTL of FADD is
 
     return ans;
   end faddMain2;
-  signal input1_1, input2_1, frac1 : unsigned_word;
+  signal input1_1, input2_1, frac1 : unsigned32;
 begin
   proc:process(clk)
   begin

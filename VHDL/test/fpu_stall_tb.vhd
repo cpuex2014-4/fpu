@@ -13,9 +13,9 @@ end fpu_stall_tb;
 
 architecture Behavior of fpu_stall_tb is
   subtype int32 is std_logic_vector(31 downto 0);
-  signal a:unsigned_word := (others=>'0');
-  signal b:unsigned_word := (others=>'0');
-  signal ans:unsigned_word := (others=>'0');
+  signal a:unsigned32 := (others=>'0');
+  signal b:unsigned32 := (others=>'0');
+  signal ans:unsigned32 := (others=>'0');
   signal clk:std_logic := '0';
   signal o_ava, o_wnx, u_ava: std_logic;
   signal o_tag : tomasulo_fpu_tag_t;

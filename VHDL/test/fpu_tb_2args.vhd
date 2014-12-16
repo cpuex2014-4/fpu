@@ -13,9 +13,9 @@ end fpu_tb_2args;
 
 architecture Behavior of fpu_tb_2args is
   subtype int32 is std_logic_vector(31 downto 0);
-  signal a:unsigned_word := (others=>'0');
-  signal b:unsigned_word := (others=>'0');
-  signal ans:unsigned_word := (others=>'0');
+  signal a:unsigned32 := (others=>'0');
+  signal b:unsigned32 := (others=>'0');
+  signal ans:unsigned32 := (others=>'0');
   signal clk:std_logic := '0';
   file  read_file  : text open read_mode  is "test.in";
 

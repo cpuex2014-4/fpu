@@ -11,10 +11,10 @@ entity FDIV is
 end entity FDIV;
 
 architecture RTL of FDIV is
-  subtype unsigned_word is unsigned(31 downto 0);
-  signal a, b: unsigned_word := (others => '0');
-  signal a1, a2, a3, a4, a5: unsigned_word := (others => '0');
-  signal inv_in, inv_out, ans: unsigned_word;
+  subtype unsigned32 is unsigned(31 downto 0);
+  signal a, b: unsigned32 := (others => '0');
+  signal a1, a2, a3, a4, a5: unsigned32 := (others => '0');
+  signal inv_in, inv_out, ans: unsigned32;
 begin
   inv: FINV port map (
     input => b, clk => clk, output => inv_out

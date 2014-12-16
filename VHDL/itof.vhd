@@ -10,8 +10,8 @@ entity ITOF is
 end entity ITOF;
 
 architecture RTL of ITOF is
-  signal t: unsigned_word;
-  signal low0, high0, low, high, a, b, a1, b1, ans: unsigned_word;
+  signal t: unsigned32;
+  signal low0, high0, low, high, a, b, a1, b1, ans: unsigned32;
   signal sign1 : std_logic;
   signal sign2 : std_logic;
   signal sign3 : std_logic;

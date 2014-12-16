@@ -12,7 +12,7 @@ entity FINV is
 end entity FINV;
 
 architecture RTL of FINV is
-  subtype unsigned_word is unsigned(31 downto 0);
+  subtype unsigned32 is unsigned(31 downto 0);
   type RamType is array(0 to 4095) of bit_vector(31 downto 0);
   impure function InitRamFromFile (RamFileName : in string) return RamType is
     FILE RamFile : text open read_mode is RamFileName;
@@ -30,11 +30,11 @@ architecture RTL of FINV is
   attribute ram_style : string;
   attribute ram_style of RAM: signal is "block";
   signal d:signed(8 downto 0);
-  signal a, reg, b, ax_in, ax_out, axb : unsigned_word;
-  signal in1 : unsigned_word := (31 downto 0 => '0');
-  signal in2 : unsigned_word := (31 downto 0 => '0');
-  signal in3 : unsigned_word := (31 downto 0 => '0');
-  signal in4 : unsigned_word := (31 downto 0 => '0');
+  signal a, reg, b, ax_in, ax_out, axb : unsigned32;
+  signal in1 : unsigned32 := (31 downto 0 => '0');
+  signal in2 : unsigned32 := (31 downto 0 => '0');
+  signal in3 : unsigned32 := (31 downto 0 => '0');
+  signal in4 : unsigned32 := (31 downto 0 => '0');
   signal exp: unsigned(7 downto 0);
 begin
   ax: FMUL_OLD port map (

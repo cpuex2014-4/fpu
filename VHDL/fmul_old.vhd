@@ -11,9 +11,9 @@ entity FMUL_OLD is
 end entity FMUL_OLD;
 
 architecture RTL of FMUL_OLD is
-  signal input1_1, input2_1, input1_2, input2_2: unsigned_word;
+  signal input1_1, input2_1, input1_2, input2_2: unsigned32;
   signal hh_1, hl1_1, hl2_1, hh_2, hl1_2, hl2_2: unsigned(35 downto 0);
-  signal sumExp_1, sumExp_2: unsigned_word;
+  signal sumExp_1, sumExp_2: unsigned32;
 begin
      stage1: FMUL_STAGE1 port map(
         input1=>input1,
@@ -32,7 +32,7 @@ begin
         output => output);
 
   fmul_old_proc:process(input1, input2, clk)
-    variable in_1, in_2: unsigned_word;
+    variable in_1, in_2: unsigned32;
   begin
     if rising_edge(clk) then
       in_1 := input1_1;

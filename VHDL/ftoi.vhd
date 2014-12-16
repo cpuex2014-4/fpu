@@ -9,14 +9,14 @@ entity FTOI is
 end entity FTOI;
 
 architecture RTL of FTOI is
-  subtype unsigned_word is unsigned(31 downto 0);
-  constant zero32 : unsigned_word := (others=>'0');
-  signal aExp: unsigned_word;
+  subtype unsigned32 is unsigned(31 downto 0);
+  constant zero32 : unsigned32 := (others=>'0');
+  signal aExp: unsigned32;
   signal sign: std_logic;
 begin
   ftoi_proc: process(input)
-    variable ans, frac: unsigned_word;
-    variable shift : unsigned_word;
+    variable ans, frac: unsigned32;
+    variable shift : unsigned32;
     variable shifti : integer;
   begin
     if TO_01(input, 'X')(0) = 'X' then

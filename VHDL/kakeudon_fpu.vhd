@@ -2,14 +2,14 @@ library IEEE;
 use IEEE.std_logic_1164.all;
 use IEEE.numeric_std.all;
 package kakeudon_fpu is
-  subtype unsigned_word is unsigned(31 downto 0);
+  subtype unsigned32 is unsigned(31 downto 0);
   subtype tomasulo_fpu_tag_t is unsigned(4 downto 0);
   component FADD is
   Port (
-    input1 : in unsigned_word;
-    input2 : in unsigned_word;
+    input1 : in unsigned32;
+    input2 : in unsigned32;
     clk: in std_logic;
-    output : out unsigned_word);
+    output : out unsigned32);
   end component;
 
   component FMUL_OLD is
@@ -38,52 +38,52 @@ package kakeudon_fpu is
   end component;
 
   component FMUL_STAGE1 is
-  Port (input1   : in  unsigned_word;
-        input2   : in  unsigned_word;
+  Port (input1   : in  unsigned32;
+        input2   : in  unsigned32;
         hh   : out  unsigned (35 downto 0);
         hl1  : out  unsigned (35 downto 0);
         hl2  : out  unsigned (35 downto 0);
-        sumExp : out unsigned_word);
+        sumExp : out unsigned32);
   end component;
   component FMUL_STAGE2 is
-  Port (input1   : in  unsigned_word;
-        input2   : in  unsigned_word;
+  Port (input1   : in  unsigned32;
+        input2   : in  unsigned32;
         hh   : in  unsigned (35 downto 0);
         hl1  : in  unsigned (35 downto 0);
         hl2  : in  unsigned (35 downto 0);
-        sumExp : in unsigned_word;
-        output : out unsigned_word);
+        sumExp : in unsigned32;
+        output : out unsigned32);
   end component;
 
   component ITOF is
-  Port (input  : in  unsigned_word;
+  Port (input  : in  unsigned32;
         clk : in std_logic;
-        output : out unsigned_word);
+        output : out unsigned32);
   end component;
 
   component FTOI is
-  Port (input  : in  unsigned_word;
-        output : out unsigned_word);
+  Port (input  : in  unsigned32;
+        output : out unsigned32);
   end component;
 
 
   component FINV is
-  Port (input  : in  unsigned_word;
+  Port (input  : in  unsigned32;
         clk    : in  std_logic;
-        output : out unsigned_word);
+        output : out unsigned32);
   end component;
 
   component FDIV is
-  Port (input1 : in  unsigned_word;
-        input2 : in  unsigned_word;
+  Port (input1 : in  unsigned32;
+        input2 : in  unsigned32;
         clk : in std_logic;
-        output : out unsigned_word);
+        output : out unsigned32);
   end component FDIV;
 
   component FSQRT is
-  Port (input  : in  unsigned_word;
+  Port (input  : in  unsigned32;
         clk    : in  std_logic;
-        output : out unsigned_word);
+        output : out unsigned32);
   end component;
 
 end package kakeudon_fpu;

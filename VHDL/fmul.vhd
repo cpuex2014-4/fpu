@@ -26,13 +26,13 @@ architecture RTL of FMUL is
   signal stage1_tag, stage2_tag : tomasulo_fpu_tag_t;
   signal cdb_use : std_logic;
 
-  signal stage2_in1, stage2_in2: unsigned_word;
+  signal stage2_in1, stage2_in2: unsigned32;
   signal hh_1, hl1_1, hl2_1: unsigned(35 downto 0);
-  signal sumExp_1 : unsigned_word;
+  signal sumExp_1 : unsigned32;
 
   signal hh_2, hl1_2, hl2_2: unsigned(35 downto 0);
-  signal sumExp_2 : unsigned_word;
-  signal stage2_output: unsigned_word;
+  signal sumExp_2 : unsigned32;
+  signal stage2_output: unsigned32;
 begin
   stage1: FMUL_STAGE1 port map(
     input1=>fmul_in0,
