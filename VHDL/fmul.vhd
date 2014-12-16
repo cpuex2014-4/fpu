@@ -10,11 +10,11 @@ entity FMUL is
     clk : in std_logic;
     refetch : in std_logic;
     fmul_in_available : in std_logic;
-    fmul_in_tag : in tomasulo_tag_t;
+    fmul_in_tag : in tomasulo_fpu_tag_t;
     fmul_in0   : in  unsigned (31 downto 0);
     fmul_in1   : in  unsigned (31 downto 0);
     fmul_out_available : out std_logic;
-    fmul_out_tag : out tomasulo_tag_t;
+    fmul_out_tag : out tomasulo_fpu_tag_t;
     fmul_out_value   : out  unsigned (31 downto 0);
     cdb_writable : in std_logic;
     cdb_writable_next : out std_logic;
@@ -23,7 +23,7 @@ end entity FMUL;
 
 architecture RTL of FMUL is
   signal stage1_available, stage2_available : std_logic := '0';
-  signal stage1_tag, stage2_tag : tomasulo_tag_t;
+  signal stage1_tag, stage2_tag : tomasulo_fpu_tag_t;
   signal cdb_use : std_logic;
 
   signal stage2_in1, stage2_in2: unsigned_word;

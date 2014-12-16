@@ -3,7 +3,7 @@ use IEEE.std_logic_1164.all;
 use IEEE.numeric_std.all;
 package kakeudon_fpu is
   subtype unsigned_word is unsigned(31 downto 0);
-  subtype tomasulo_tag_t is unsigned(4 downto 0);
+  subtype tomasulo_fpu_tag_t is unsigned(4 downto 0);
   component FADD is
   Port (
     input1 : in unsigned_word;
@@ -26,11 +26,11 @@ package kakeudon_fpu is
       clk : in std_logic;
       refetch : in std_logic;
       fmul_in_available : in std_logic;
-      fmul_in_tag : in tomasulo_tag_t;
+      fmul_in_tag : in tomasulo_fpu_tag_t;
       fmul_in0    : in  unsigned (31 downto 0);
       fmul_in1    : in  unsigned (31 downto 0);
       fmul_out_available : out std_logic;
-      fmul_out_tag : out tomasulo_tag_t;
+      fmul_out_tag : out tomasulo_fpu_tag_t;
       fmul_out_value   : out  unsigned (31 downto 0);
       cdb_writable : in std_logic;
       cdb_writable_next : out std_logic;

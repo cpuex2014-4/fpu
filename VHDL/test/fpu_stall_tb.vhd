@@ -18,7 +18,7 @@ architecture Behavior of fpu_stall_tb is
   signal ans:unsigned_word := (others=>'0');
   signal clk:std_logic := '0';
   signal o_ava, o_wnx, u_ava: std_logic;
-  signal o_tag : tomasulo_tag_t;
+  signal o_tag : tomasulo_fpu_tag_t;
   file  read_file  : text open read_mode  is "test.in";
 
   -- Please change file name
