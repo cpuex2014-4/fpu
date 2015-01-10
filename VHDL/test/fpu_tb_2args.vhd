@@ -20,11 +20,11 @@ architecture Behavior of fpu_tb_2args is
   file  read_file  : text open read_mode  is "test.in";
 
   -- Please change file name
-  file  write_file : text open write_mode is "test_fdiv.out";
+  file  write_file : text open write_mode is "test_fadd.out";
 begin
 
   -- Please change port map
-  fpu_test: FDIV port map (input1=>a, input2=>b, clk=>clk,output=>ans);
+  fpu_test: FADD port map (input1=>a, input2=>b, clk=>clk,output=>ans);
 
   readProc:process(clk)
     variable lin : line;
