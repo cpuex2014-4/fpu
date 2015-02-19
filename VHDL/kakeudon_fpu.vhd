@@ -4,12 +4,30 @@ use IEEE.numeric_std.all;
 package kakeudon_fpu is
   subtype unsigned32 is unsigned(31 downto 0);
   subtype tomasulo_fpu_tag_t is unsigned(4 downto 0);
-  component FADD is
+  component FADD_OLD is
   Port (
     input1 : in unsigned32;
     input2 : in unsigned32;
     clk: in std_logic;
     output : out unsigned32);
+  end component;
+
+   component FADD is
+    generic (
+      last_unit : boolean);
+    Port (
+      clk : in std_logic;
+      refetch : in std_logic;
+      fadd_in_available : in std_logic;
+      fadd_in_tag : in tomasulo_fpu_tag_t;
+      fadd_in0    : in  unsigned (31 downto 0);
+      fadd_in1    : in  unsigned (31 downto 0);
+      fadd_out_available : out std_logic;
+      fadd_out_tag : out tomasulo_fpu_tag_t;
+      fadd_out_value   : out  unsigned (31 downto 0);
+      cdb_writable : in std_logic;
+      cdb_writable_next : out std_logic;
+      fadd_unit_available : out std_logic);
   end component;
 
   component FMUL_OLD is
