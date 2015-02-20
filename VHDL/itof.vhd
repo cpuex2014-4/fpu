@@ -16,9 +16,9 @@ architecture RTL of ITOF is
   signal sign2 : std_logic;
   signal sign3 : std_logic;
 begin
-  lowsub:  FADD port map (input1=> low,  input2=> x"cb000000", clk => clk, output=>a1);
-  highsub: FADD port map (input1=> high, input2=> x"d6800000", clk => clk, output=>b1);
-  lhadd:   FADD port map (input1=> a,    input2=> b, clk => clk, output=>ans);
+  lowsub:  FADD_OLD port map (input1=> low,  input2=> x"cb000000", clk => clk, output=>a1);
+  highsub: FADD_OLD port map (input1=> high, input2=> x"d6800000", clk => clk, output=>b1);
+  lhadd:   FADD_OLD port map (input1=> a,    input2=> b, clk => clk, output=>ans);
 
   t <= input when input(31) = '0' else
        (not input) + 1;

@@ -40,7 +40,7 @@ begin
   ax: FMUL_OLD port map (
     input1 => a, input2 => reg, clk => clk, output => ax_out
   );
-  ax_b: FADD port map (
+  ax_b: FADD_OLD port map (
     input1 => ax_in, input2 => b, clk => clk, output => axb
   );
 
