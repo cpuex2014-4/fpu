@@ -30,6 +30,24 @@ package kakeudon_fpu is
       fadd_unit_available : out std_logic);
   end component;
 
+  component FADD_BITSAVE is
+  Port (
+    clk:     in std_logic;
+    refetch : in std_logic;
+    fadd_in_available : in std_logic;
+    fadd_in_tag  : in tomasulo_fpu_tag_t;
+    fadd_in_saved_sign : in std_logic;
+    fadd_in0 : in unsigned32;
+    fadd_in1 : in unsigned32;
+    fadd_out_available : out std_logic;
+    fadd_out_tag  : out tomasulo_fpu_tag_t;
+    fadd_out_saved_sign : out std_logic;
+    fadd_out_value : out unsigned32;
+    cdb_writable : in std_logic;
+    cdb_writable_next : out std_logic;
+    fadd_unit_available : out std_logic);
+  end component;
+
   component FMUL_OLD is
   Port (input1   : in  unsigned (31 downto 0);
         input2   : in  unsigned (31 downto 0);
@@ -73,7 +91,26 @@ package kakeudon_fpu is
         output : out unsigned32);
   end component;
 
+
   component ITOF is
+  generic (
+    last_unit : boolean);
+  port (
+    clk                : in std_logic;
+    refetch            : in std_logic;
+    itof_in_available  : in std_logic;
+    itof_in_tag        : in tomasulo_fpu_tag_t;
+    itof_in            : in unsigned32;
+    itof_out_available : out std_logic;
+    itof_out_tag       : out tomasulo_fpu_tag_t;
+    itof_out_value     : out unsigned32;
+    cdb_writable       : in std_logic;
+    cdb_writable_next  : out std_logic;
+    itof_unit_available: out std_logic
+  );
+  end component;
+
+  component ITOF_OLD is
   Port (input  : in  unsigned32;
         clk : in std_logic;
         output : out unsigned32);
