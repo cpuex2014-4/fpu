@@ -5,29 +5,29 @@ use IEEE.std_logic_1164.all;
 use IEEE.numeric_std.all;
 use work.kakeudon_fpu.all;
 
-entity FADD_BITSAVE is
+entity FADD_WITH_FLAG is
   Port (
     clk:     in std_logic;
     refetch : in std_logic;
     fadd_in_available : in std_logic;
     fadd_in_tag  : in tomasulo_fpu_tag_t;
-    fadd_in_saved_sign : in std_logic;
+    fadd_in_flag : in unsigned(1 downto 0);
     fadd_in0 : in unsigned32;
     fadd_in1 : in unsigned32;
     fadd_out_available : out std_logic;
     fadd_out_tag  : out tomasulo_fpu_tag_t;
-    fadd_out_saved_sign : out std_logic;
+    fadd_out_flag : out unsigned(1 downto 0);
     fadd_out_value : out unsigned32;
     cdb_writable : in std_logic;
     cdb_writable_next : out std_logic;
     fadd_unit_available : out std_logic);
-end entity FADD_BITSAVE;
+end entity FADD_WITH_FLAG;
 
 
-architecture RTL of FADD_BITSAVE is
+architecture RTL of FADD_WITH_FLAG is
   type stage1_type is record
     tag    : tomasulo_fpu_tag_t;
-    saved_sign   : std_logic;
+    flag   : unsigned(1 downto 0);
     avail  : std_logic;
     a_1    : unsigned32;
     na     : unsigned32;
@@ -40,7 +40,7 @@ architecture RTL of FADD_BITSAVE is
   end record;
   type stage2_type is record
     tag    : tomasulo_fpu_tag_t;
-    saved_sign   : std_logic;
+    flag   : unsigned(1 downto 0);
     avail  : std_logic;
     a_2    : unsigned32;
     sign_2 : std_logic;
@@ -51,7 +51,7 @@ architecture RTL of FADD_BITSAVE is
   end record;
   type stage3_type is record
     tag    : tomasulo_fpu_tag_t;
-    saved_sign   : std_logic;
+    flag   : unsigned(1 downto 0);
     avail  : std_logic;
     ans    : unsigned32;
   end record;
@@ -140,7 +140,7 @@ begin
                    refetch,
                    fadd_in_available,
                    fadd_in_tag,
-                   fadd_in_saved_sign,
+                   fadd_in_flag,
                    fadd_in0,
                    fadd_in1,
                    cdb_writable)
@@ -158,7 +158,7 @@ begin
 
     -- stage 1 --
     variable tag_1   : tomasulo_fpu_tag_t;
-    variable saved_sign_1  : std_logic;
+    variable flag_1  : unsigned(1 downto 0);
     variable avail_1 : std_logic;
     variable a, b    : unsigned32;
     variable na, nb  : unsigned32;
@@ -170,7 +170,7 @@ begin
     variable ret_a   : std_logic;
     -- stage 2 --
     variable tag_2   : tomasulo_fpu_tag_t;
-    variable saved_sign_2  : std_logic;
+    variable flag_2  : unsigned(1 downto 0);
     variable avail_2 : std_logic;
     variable sign_2  : std_logic;
     variable exp_2   : unsigned32;
@@ -181,7 +181,7 @@ begin
     variable ret_a_2 : std_logic;
     -- stage 3 --
     variable tag_3  : tomasulo_fpu_tag_t;
-    variable saved_sign_3 : std_logic;
+    variable flag_3 : unsigned(1 downto 0);
     variable avail_3: std_logic;
     variable sign_3 : std_logic;
     variable exp_3  : unsigned32;
@@ -210,7 +210,7 @@ begin
     input1 := fadd_in0;
     input2 := fadd_in1;
     tag_1  := fadd_in_tag;
-    saved_sign_1 := fadd_in_saved_sign;
+    flag_1 := fadd_in_flag;
     avail_1 := fadd_in_available;
 
     if input1(30 downto 0) >= input2(30 downto 0) then
@@ -257,7 +257,7 @@ begin
       isAdd := '0';
     end if;
     s1.tag    := tag_1;
-    s1.saved_sign   := saved_sign_1;
+    s1.flag   := flag_1;
     s1.avail  := avail_1;
     s1.a_1    := a;
     s1.na     := na;
@@ -284,7 +284,7 @@ begin
     ----- stage 2 -----
 
     tag_2   := r.s1.tag;
-    saved_sign_2  := r.s1.saved_sign;
+    flag_2  := r.s1.flag;
     avail_2 := r.s1.avail;
     sign_2  := r.s1.sign_1;
     exp_2   := r.s1.exp_1;
@@ -316,7 +316,7 @@ begin
     end if;
 
     s2.tag    := tag_2;
-    s2.saved_sign := saved_sign_2;
+    s2.flag := flag_2;
     s2.avail  := avail_2;
     s2.sign_2 := sign_2;
     s2.exp_2  := exp_2;
@@ -339,7 +339,7 @@ begin
 
     ----- stage 3 -----
     tag_3  := r.s2.tag;
-    saved_sign_3 := r.s2.saved_sign;
+    flag_3 := r.s2.flag;
     avail_3:= r.s2.avail;
     sign_3 := r.s2.sign_2;
     exp_3  := r.s2.exp_2;
@@ -383,12 +383,12 @@ begin
     if cdb_use = '1' then
       fadd_out_available <= avail_3;
       fadd_out_tag       <= tag_3;
-      fadd_out_saved_sign<= saved_sign_3;
+      fadd_out_flag      <= flag_3;
       fadd_out_value     <= ans;
     else
       fadd_out_available <= '0';
       fadd_out_tag       <= (others => 'Z');
-      fadd_out_saved_sign<= 'Z';
+      fadd_out_flag      <= (others => 'Z');
       fadd_out_value     <= (others => 'Z');
     end if;
 

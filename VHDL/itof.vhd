@@ -31,85 +31,85 @@ architecture RTL of ITOF is
     sign : std_logic;
   end record;
 
-  signal low, high   : unsigned32;
-  signal a1, b1      : unsigned32;
-  signal a, b        : unsigned32;
-  signal ans         : unsigned32;
-  signal i_sign_1 : std_logic;
-  signal i_writable_1 : std_logic;
+  signal low, high       : unsigned32;
+  signal a1, b1          : unsigned32;
+  signal a, b            : unsigned32;
+  signal ans             : unsigned32;
+  signal i_sign_1        : unsigned(1 downto 0);
+  signal i_writable_1    : std_logic;
   signal unit_avail_low  : std_logic;
   signal unit_avail_high : std_logic;
   signal unit_avail_hl   : std_logic;
 
   signal i_avail_hl : std_logic;
   signal i_tag_hl   : tomasulo_fpu_tag_t;
-  signal i_sign_hl  : std_logic;
+  signal i_sign_hl  : unsigned(1 downto 0);
 
   signal o_avail_low : std_logic;
   signal o_avail_high: std_logic;
   signal o_tag_low   : tomasulo_fpu_tag_t;
   signal o_tag_high  : tomasulo_fpu_tag_t;
-  signal o_sign_low  : std_logic;
-  signal o_sign_high : std_logic;
-  signal o_sign_hl   : std_logic;
+  signal o_sign_low  : unsigned(1 downto 0);
+  signal o_sign_high : unsigned(1 downto 0);
+  signal o_sign_hl   : unsigned(1 downto 0);
 
   signal t : unsigned32;
 
   signal r, rin : reg_type;
 
 begin
-  lowsub: FADD_BITSAVE port map (
-    clk                   => clk,
-    refetch               => refetch,
-    fadd_in_available     => itof_in_available,
-    fadd_in_tag           => itof_in_tag,
-    fadd_in_saved_sign    => i_sign_1,
-    fadd_in0              => low,
-    fadd_in1              => x"cb000000",
-    fadd_out_available    => o_avail_low,
-    fadd_out_tag          => o_tag_low,
-    fadd_out_saved_sign   => o_sign_low,
-    fadd_out_value        => a1,
-    cdb_writable          => i_writable_1,
-    cdb_writable_next     => open,
-    fadd_unit_available   => unit_avail_low
+  lowsub : FADD_WITH_FLAG port map (
+    clk                 => clk,
+    refetch             => refetch,
+    fadd_in_available   => itof_in_available,
+    fadd_in_tag         => itof_in_tag,
+    fadd_in_flag        => i_sign_1,
+    fadd_in0            => low,
+    fadd_in1            => x"cb000000",
+    fadd_out_available  => o_avail_low,
+    fadd_out_tag        => o_tag_low,
+    fadd_out_flag       => o_sign_low,
+    fadd_out_value      => a1,
+    cdb_writable        => i_writable_1,
+    cdb_writable_next   => open,
+    fadd_unit_available => unit_avail_low
   );
-  highsub: FADD_BITSAVE port map (
-    clk                   => clk,
-    refetch               => refetch,
-    fadd_in_available     => itof_in_available,
-    fadd_in_tag           => itof_in_tag,
-    fadd_in_saved_sign    => i_sign_1,
-    fadd_in0              => high,
-    fadd_in1              => x"d6800000",
-    fadd_out_available    => o_avail_high,
-    fadd_out_tag          => o_tag_high,
-    fadd_out_saved_sign   => o_sign_high,
-    fadd_out_value        => b1,
-    cdb_writable          => i_writable_1,
-    cdb_writable_next     => open,
-    fadd_unit_available   => unit_avail_high
+  highsub : FADD_WITH_FLAG port map (
+    clk                 => clk,
+    refetch             => refetch,
+    fadd_in_available   => itof_in_available,
+    fadd_in_tag         => itof_in_tag,
+    fadd_in_flag        => i_sign_1,
+    fadd_in0            => high,
+    fadd_in1            => x"d6800000",
+    fadd_out_available  => o_avail_high,
+    fadd_out_tag        => o_tag_high,
+    fadd_out_flag       => o_sign_high,
+    fadd_out_value      => b1,
+    cdb_writable        => i_writable_1,
+    cdb_writable_next   => open,
+    fadd_unit_available => unit_avail_high
   );
-  hladd: FADD_BITSAVE port map (
-    clk                   => clk,
-    refetch               => refetch,
-    fadd_in_available     => i_avail_hl,
-    fadd_in_tag           => i_tag_hl,
-    fadd_in_saved_sign    => i_sign_hl,
-    fadd_in0              => a,
-    fadd_in1              => b,
-    fadd_out_available    => itof_out_available,
-    fadd_out_tag          => itof_out_tag,
-    fadd_out_saved_sign   => o_sign_hl,
-    fadd_out_value        => ans,
-    cdb_writable          => cdb_writable,
-    cdb_writable_next     => cdb_writable_next,
-    fadd_unit_available   => unit_avail_hl
+  hladd : FADD_WITH_FLAG port map (
+    clk                 => clk,
+    refetch             => refetch,
+    fadd_in_available   => i_avail_hl,
+    fadd_in_tag         => i_tag_hl,
+    fadd_in_flag        => i_sign_hl,
+    fadd_in0            => a,
+    fadd_in1            => b,
+    fadd_out_available  => itof_out_available,
+    fadd_out_tag        => itof_out_tag,
+    fadd_out_flag       => o_sign_hl,
+    fadd_out_value      => ans,
+    cdb_writable        => cdb_writable,
+    cdb_writable_next   => cdb_writable_next,
+    fadd_unit_available => unit_avail_hl
   );
 
   itof_unit_available <= unit_avail_low or unit_avail_hl;
-  itof_out_value      <= o_sign_hl & ans(30 downto 0);
-  i_sign_1            <= itof_in(31);
+  itof_out_value      <= o_sign_hl(0) & ans(30 downto 0);
+  i_sign_1            <= "0" & itof_in(31);
   i_writable_1        <= unit_avail_hl;
 
   t <= itof_in when itof_in(31) = '0' else
