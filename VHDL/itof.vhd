@@ -7,28 +7,28 @@ entity ITOF is
   generic (
     last_unit : boolean := true);
   port (
-    clk                : in std_logic;
-    refetch            : in std_logic;
-    itof_in_available  : in std_logic;
-    itof_in_tag        : in tomasulo_fpu_tag_t;
-    itof_in            : in unsigned32;
-    itof_out_available : out std_logic;
-    itof_out_tag       : out tomasulo_fpu_tag_t;
-    itof_out_value     : out unsigned32;
-    cdb_writable       : in std_logic;
-    cdb_writable_next  : out std_logic;
-    itof_unit_available: out std_logic
+    clk                 : in  std_logic;
+    refetch             : in  std_logic;
+    itof_in_available   : in  std_logic;
+    itof_in_tag         : in  tomasulo_fpu_tag_t;
+    itof_in             : in  unsigned32;
+    itof_out_available  : out std_logic;
+    itof_out_tag        : out tomasulo_fpu_tag_t;
+    itof_out_value      : out unsigned32;
+    cdb_writable        : in  std_logic;
+    cdb_writable_next   : out std_logic;
+    itof_unit_available : out std_logic
   );
 end entity itof;
 
 architecture RTL of ITOF is
 
   type reg_type is record
-    a    : unsigned32;
-    b    : unsigned32;
-    avail: std_logic;
-    tag  : tomasulo_fpu_tag_t;
-    sign : std_logic;
+    a     : unsigned32;
+    b     : unsigned32;
+    avail : std_logic;
+    tag   : tomasulo_fpu_tag_t;
+    sign  : std_logic;
   end record;
 
   signal low, high       : unsigned32;
@@ -40,18 +40,16 @@ architecture RTL of ITOF is
   signal unit_avail_low  : std_logic;
   signal unit_avail_high : std_logic;
   signal unit_avail_hl   : std_logic;
-
-  signal i_avail_hl : std_logic;
-  signal i_tag_hl   : tomasulo_fpu_tag_t;
-  signal i_sign_hl  : unsigned(1 downto 0);
-
-  signal o_avail_low : std_logic;
-  signal o_avail_high: std_logic;
-  signal o_tag_low   : tomasulo_fpu_tag_t;
-  signal o_tag_high  : tomasulo_fpu_tag_t;
-  signal o_sign_low  : unsigned(1 downto 0);
-  signal o_sign_high : unsigned(1 downto 0);
-  signal o_sign_hl   : unsigned(1 downto 0);
+  signal i_avail_hl      : std_logic;
+  signal i_tag_hl        : tomasulo_fpu_tag_t;
+  signal i_sign_hl       : unsigned(1 downto 0);
+  signal o_avail_low     : std_logic;
+  signal o_avail_high    : std_logic;
+  signal o_tag_low       : tomasulo_fpu_tag_t;
+  signal o_tag_high      : tomasulo_fpu_tag_t;
+  signal o_sign_low      : unsigned(1 downto 0);
+  signal o_sign_high     : unsigned(1 downto 0);
+  signal o_sign_hl       : unsigned(1 downto 0);
 
   signal t : unsigned32;
 
@@ -115,11 +113,11 @@ begin
   t <= itof_in when itof_in(31) = '0' else
        (not itof_in) + 1;
 
-  low  <= ("000000000" & t(22 downto  0))  + x"4b000000";
-  high <= (x"000000"   & t(30 downto 23))  + x"56800000";
+  low  <= ("000000000" & t(22 downto 0)) + x"4b000000";
+  high <= (x"000000" & t(30 downto 23)) + x"56800000";
 
 
-  reg : process ( clk,
+  reg : process (clk,
                   refetch,
                   itof_in_available,
                   itof_in_tag,
@@ -128,15 +126,17 @@ begin
   begin
     if rising_edge(clk) then
       if unit_avail_hl = '1' then
-        a          <= a1;
-        b          <= b1;
-        i_tag_hl   <= o_tag_low;
+        a         <= a1;
+        b         <= b1;
+        i_tag_hl  <= o_tag_low;
+        i_sign_hl <= o_sign_low;
+
         if refetch = '1' then
           i_avail_hl <= '0';
         else
           i_avail_hl <= o_avail_low;
         end if;
-        i_sign_hl  <= o_sign_low;
+
       end if;
     end if;
   end process;
