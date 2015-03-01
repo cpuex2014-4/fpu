@@ -28,11 +28,11 @@ architecture Behavior of fpu_stall_tb1 is
   file  read_file  : text open read_mode  is "/home/udon/cpuex/fpu/VHDL/test/stall_test1.in";
 
   -- Please change file name
-  file  write_file : text open write_mode is "/home/udon/cpuex/sim/test_stall_itof.out";
+  file  write_file : text open write_mode is "/home/udon/cpuex/fpu/VHDL/test/test_stall_fsqrt.out";
 begin
 
   -- Please change port map
-  fpu_test: ITOF
+  fpu_test: FSQRT
     generic map (last_unit => true)
     port map (
       clk,    -- clk

@@ -35,21 +35,21 @@ architecture RTL of ITOF is
   signal a1, b1          : unsigned32;
   signal a, b            : unsigned32;
   signal ans             : unsigned32;
-  signal i_sign_1        : unsigned(1 downto 0);
+  signal i_sign_1        : unsigned32;
   signal i_writable_1    : std_logic;
   signal unit_avail_low  : std_logic;
   signal unit_avail_high : std_logic;
   signal unit_avail_hl   : std_logic;
   signal i_avail_hl      : std_logic;
   signal i_tag_hl        : tomasulo_fpu_tag_t;
-  signal i_sign_hl       : unsigned(1 downto 0);
+  signal i_sign_hl       : unsigned32;
   signal o_avail_low     : std_logic;
   signal o_avail_high    : std_logic;
   signal o_tag_low       : tomasulo_fpu_tag_t;
   signal o_tag_high      : tomasulo_fpu_tag_t;
-  signal o_sign_low      : unsigned(1 downto 0);
-  signal o_sign_high     : unsigned(1 downto 0);
-  signal o_sign_hl       : unsigned(1 downto 0);
+  signal o_sign_low      : unsigned32;
+  signal o_sign_high     : unsigned32;
+  signal o_sign_hl       : unsigned32;
 
   signal t : unsigned32;
 
@@ -107,7 +107,7 @@ begin
 
   itof_unit_available <= unit_avail_low or unit_avail_hl;
   itof_out_value      <= o_sign_hl(0) & ans(30 downto 0);
-  i_sign_1            <= "0" & itof_in(31);
+  i_sign_1            <= (29 downto 0 => '0') & itof_in(31);
   i_writable_1        <= unit_avail_hl;
 
   t <= itof_in when itof_in(31) = '0' else

@@ -4,19 +4,17 @@ use IEEE.numeric_std.all;
 use work.kakeudon_fpu.all;
 
 entity FMUL_WITH_FLAG is
-  generic (
-    last_unit : boolean);
   Port (
     clk                 : in  std_logic;
     refetch             : in  std_logic;
     fmul_in_available   : in  std_logic;
     fmul_in_tag         : in  tomasulo_fpu_tag_t;
-    fmul_in_flag        : in  unsigned (1 downto 0);
+    fmul_in_flag        : in  unsigned (31 downto 0);
     fmul_in0            : in  unsigned (31 downto 0);
     fmul_in1            : in  unsigned (31 downto 0);
     fmul_out_available  : out std_logic;
     fmul_out_tag        : out tomasulo_fpu_tag_t;
-    fmul_out_flag       : out unsigned (1 downto 0);
+    fmul_out_flag       : out unsigned (31 downto 0);
     fmul_out_value      : out unsigned (31 downto 0);
     cdb_writable        : in  std_logic;
     cdb_writable_next   : out std_logic;
@@ -26,7 +24,7 @@ end entity FMUL_WITH_FLAG;
 architecture RTL of FMUL_WITH_FLAG is
   signal stage1_available, stage2_available : std_logic := '0';
   signal stage1_tag, stage2_tag             : tomasulo_fpu_tag_t;
-  signal stage1_flag, stage2_flag           : unsigned(1 downto 0);
+  signal stage1_flag, stage2_flag           : unsigned(31 downto 0);
   signal cdb_use                            : std_logic;
   signal stage2_in1, stage2_in2             : unsigned32;
   signal hh_1, hl1_1, hl2_1                 : unsigned(35 downto 0);
@@ -44,7 +42,7 @@ begin
     hl2    => hl2_1,
     sumExp => sumExp_1);
   stage2 : FMUL_STAGE2 port map(
-.@ input1  => stage2_in1,
+    input1 => stage2_in1,
     input2 => stage2_in2,
     hh     => hh_2,
     hl1    => hl1_2,
@@ -52,8 +50,7 @@ begin
     sumExp => sumExp_2,
     output => stage2_output_combinational);
 
-  cdb_use             <= cdb_writable when last_unit else
-                         cdb_writable and stage2_available;
+  cdb_use             <= cdb_writable and stage2_available;
   fmul_out_available  <= stage2_available when cdb_use = '1' else
                          'Z';
   fmul_out_value      <= stage2_output when cdb_use = '1' else
