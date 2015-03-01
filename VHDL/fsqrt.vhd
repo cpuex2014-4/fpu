@@ -72,12 +72,14 @@ begin
     refetch             => refetch,
     fmul_in_available   => i_avail_ax,
     fmul_in_tag         => i_tag_ax,
-    fmul_in_flag        => i_flag_ax,
+    fmul_in_flag1       => i_flag1_ax,
+    fmul_in_flag2       => open,
     fmul_in0            => a,
     fmul_in1            => reg,
     fmul_out_available  => o_avail_ax,
     fmul_out_tag        => o_tag_ax,
     fmul_out_flag       => o_flag_ax,
+    fmul_out_flag       => open,
     fmul_out_value      => ax_out,
     cdb_writable        => i_writable_1,
     cdb_writable_next   => open,
@@ -89,12 +91,14 @@ begin
     refetch             => refetch,
     fadd_in_available   => i_avail_ax_b,
     fadd_in_tag         => i_tag_ax_b,
-    fadd_in_flag        => i_flag_ax_b,
+    fadd_in_flag1       => i_flag_ax_b,
+    fadd_in_flag2       => open,
     fadd_in0            => ax_in,
     fadd_in1            => b,
     fadd_out_available  => fsqrt_out_available,
     fadd_out_tag        => fsqrt_out_tag,
-    fadd_out_flag       => in4,
+    fadd_out_flag1      => in4,
+    fadd_out_flag2      => open,
     fadd_out_value      => axb,
     cdb_writable        => cdb_writable,
     cdb_writable_next   => cdb_writable_next,
@@ -124,11 +128,11 @@ begin
 
 
   fsqrt_proc : process (clk,
-                       refetch,
-                       fsqrt_in_available,
-                       fsqrt_in_tag,
-                       fsqrt_in,
-                       cdb_writable)
+                        refetch,
+                        fsqrt_in_available,
+                        fsqrt_in_tag,
+                        fsqrt_in,
+                        cdb_writable)
 
     variable idx1, idx2 : integer := 0;
   begin

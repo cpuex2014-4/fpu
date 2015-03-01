@@ -23,14 +23,6 @@ end entity itof;
 
 architecture RTL of ITOF is
 
-  type reg_type is record
-    a     : unsigned32;
-    b     : unsigned32;
-    avail : std_logic;
-    tag   : tomasulo_fpu_tag_t;
-    sign  : std_logic;
-  end record;
-
   signal low, high       : unsigned32;
   signal a1, b1          : unsigned32;
   signal a, b            : unsigned32;
@@ -53,20 +45,20 @@ architecture RTL of ITOF is
 
   signal t : unsigned32;
 
-  signal r, rin : reg_type;
-
 begin
   lowsub : FADD_WITH_FLAG port map (
     clk                 => clk,
     refetch             => refetch,
     fadd_in_available   => itof_in_available,
     fadd_in_tag         => itof_in_tag,
-    fadd_in_flag        => i_sign_1,
+    fadd_in_flag1       => i_sign_1,
+    fadd_in_flag2       => open,
     fadd_in0            => low,
     fadd_in1            => x"cb000000",
     fadd_out_available  => o_avail_low,
     fadd_out_tag        => o_tag_low,
-    fadd_out_flag       => o_sign_low,
+    fadd_out_flag1      => o_sign_low,
+    fadd_out_flag2      => open,
     fadd_out_value      => a1,
     cdb_writable        => i_writable_1,
     cdb_writable_next   => open,
@@ -77,12 +69,14 @@ begin
     refetch             => refetch,
     fadd_in_available   => itof_in_available,
     fadd_in_tag         => itof_in_tag,
-    fadd_in_flag        => i_sign_1,
+    fadd_in_flag1       => i_sign_1,
+    fadd_in_flag2       => open,
     fadd_in0            => high,
     fadd_in1            => x"d6800000",
     fadd_out_available  => o_avail_high,
     fadd_out_tag        => o_tag_high,
-    fadd_out_flag       => o_sign_high,
+    fadd_out_flag1      => o_sign_high,
+    fadd_out_flag2      => open,
     fadd_out_value      => b1,
     cdb_writable        => i_writable_1,
     cdb_writable_next   => open,
@@ -93,12 +87,14 @@ begin
     refetch             => refetch,
     fadd_in_available   => i_avail_hl,
     fadd_in_tag         => i_tag_hl,
-    fadd_in_flag        => i_sign_hl,
+    fadd_in_flag1       => i_sign_hl,
+    fadd_in_flag2       => open,
     fadd_in0            => a,
     fadd_in1            => b,
     fadd_out_available  => itof_out_available,
     fadd_out_tag        => itof_out_tag,
-    fadd_out_flag       => o_sign_hl,
+    fadd_out_flag1      => o_sign_hl,
+    fadd_out_flag2      => open,
     fadd_out_value      => ans,
     cdb_writable        => cdb_writable,
     cdb_writable_next   => cdb_writable_next,

@@ -36,12 +36,14 @@ package kakeudon_fpu is
     refetch             : in  std_logic;
     fadd_in_available   : in  std_logic;
     fadd_in_tag         : in  tomasulo_fpu_tag_t;
-    fadd_in_flag        : in  unsigned32;
+    fadd_in_flag1       : in  unsigned32;
+    fadd_in_flag2       : in  unsigned32;
     fadd_in0            : in  unsigned32;
     fadd_in1            : in  unsigned32;
     fadd_out_available  : out std_logic;
     fadd_out_tag        : out tomasulo_fpu_tag_t;
-    fadd_out_flag       : out unsigned32;
+    fadd_out_flag1      : out unsigned32;
+    fadd_out_flag2      : out unsigned32;
     fadd_out_value      : out unsigned32;
     cdb_writable        : in  std_logic;
     cdb_writable_next   : out std_logic;
@@ -80,12 +82,14 @@ package kakeudon_fpu is
       refetch             : in  std_logic;
       fmul_in_available   : in  std_logic;
       fmul_in_tag         : in  tomasulo_fpu_tag_t;
-      fmul_in_flag        : in  unsigned32;
+      fmul_in_flag1       : in  unsigned32;
+      fmul_in_flag2       : in  unsigned32;
       fmul_in0            : in  unsigned32;
       fmul_in1            : in  unsigned32;
       fmul_out_available  : out std_logic;
       fmul_out_tag        : out tomasulo_fpu_tag_t;
-      fmul_out_flag       : out unsigned32;
+      fmul_out_flag1      : out unsigned32;
+      fmul_out_flag2      : out unsigned32;
       fmul_out_value      : out unsigned32;
       cdb_writable        : in  std_logic;
       cdb_writable_next   : out std_logic;
@@ -141,19 +145,41 @@ package kakeudon_fpu is
         output : out unsigned32);
   end component;
 
-
   component FINV is
-  port (input  : in  unsigned32;
-        clk    : in  std_logic;
-        output : out unsigned32);
+  port (
+    clk                 : in std_logic;
+    refetch             : in std_logic;
+    finv_in_available  : in std_logic;
+    finv_in_tag        : in tomasulo_fpu_tag_t;
+    finv_in_flag       : in unsigned32;
+    finv_in            : in unsigned32;
+    finv_out_available : out std_logic;
+    finv_out_tag       : out tomasulo_fpu_tag_t;
+    finv_out_flag      : out unsigned32;
+    finv_out_value     : out unsigned32;
+    cdb_writable        : in std_logic;
+    cdb_writable_next   : out std_logic;
+    finv_unit_available: out std_logic
+  );
   end component;
 
   component FDIV is
-  port (input1 : in  unsigned32;
-        input2 : in  unsigned32;
-        clk    : in  std_logic;
-        output : out unsigned32);
-  end component FDIV;
+  generic (
+    last_unit : boolean);
+  port (
+    clk                 : in  std_logic;
+    refetch             : in  std_logic;
+    fdiv_in_available   : in  std_logic;
+    fdiv_in_tag         : in  tomasulo_fpu_tag_t;
+    fdiv_in0            : in  unsigned32;
+    fdiv_in1            : in  unsigned32;
+    fdiv_out_available  : out std_logic;
+    fdiv_out_tag        : out tomasulo_fpu_tag_t;
+    fdiv_out_value      : out unsigned32;
+    cdb_writable        : in  std_logic;
+    cdb_writable_next   : out std_logic;
+    fdiv_unit_available : out std_logic);
+  end component;
 
   component FSQRT_OLD is
   port (input  : in  unsigned32;

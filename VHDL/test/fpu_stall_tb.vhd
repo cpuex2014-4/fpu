@@ -26,11 +26,11 @@ architecture Behavior of fpu_stall_tb is
   file  read_file  : text open read_mode  is "/home/udon/cpuex/fpu/VHDL/test/stall_test.in";
 
   -- Please change file name
-  file  write_file : text open write_mode is "/home/udon/cpuex/sim/test_stall_fadd.out";
+  file  write_file : text open write_mode is "/home/udon/cpuex/fpu/VHDL/test/test_stall_fdiv.out";
 begin
 
   -- Please change port map
-  fpu_test: FADD
+  fpu_test: FDIV
     generic map (last_unit => true)
     port map (
       clk,    -- clk
