@@ -4,13 +4,6 @@ use IEEE.numeric_std.all;
 package kakeudon_fpu is
   subtype unsigned32 is unsigned(31 downto 0);
   subtype tomasulo_fpu_tag_t is unsigned(4 downto 0);
-  component FADD_OLD is
-  port (
-    input1 : in  unsigned32;
-    input2 : in  unsigned32;
-    clk    : in  std_logic;
-    output : out unsigned32);
-  end component;
 
    component FADD is
     generic (
@@ -50,12 +43,6 @@ package kakeudon_fpu is
     fadd_unit_available : out std_logic);
   end component;
 
-  component FMUL_OLD is
-  port (input1 : in  unsigned (31 downto 0);
-        input2 : in  unsigned (31 downto 0);
-        clk    : in  std_logic;
-        output : out unsigned (31 downto 0));
-  end component;
 
   component FMUL is
     generic (
@@ -134,11 +121,6 @@ package kakeudon_fpu is
   );
   end component;
 
-  component ITOF_OLD is
-  port (input  : in  unsigned32;
-        clk    : in  std_logic;
-        output : out unsigned32);
-  end component;
 
   component FTOI is
   port (input  : in  unsigned32;
@@ -179,12 +161,6 @@ package kakeudon_fpu is
     cdb_writable        : in  std_logic;
     cdb_writable_next   : out std_logic;
     fdiv_unit_available : out std_logic);
-  end component;
-
-  component FSQRT_OLD is
-  port (input  : in  unsigned32;
-        clk    : in  std_logic;
-        output : out unsigned32);
   end component;
 
   component FSQRT is
