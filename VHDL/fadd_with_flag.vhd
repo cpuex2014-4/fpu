@@ -1,30 +1,36 @@
+-- itofの部品のためのfadd
+-- tagだけではなくて、(tag, saved_sign)の組を受けとって返すというだけの違い
 library IEEE;
 use IEEE.std_logic_1164.all;
 use IEEE.numeric_std.all;
 use work.kakeudon_fpu.all;
 
-entity FADD is
-  generic (
-    last_unit : boolean := true);
+entity FADD_WITH_FLAG is
   Port (
     clk                 : in  std_logic;
     refetch             : in  std_logic;
     fadd_in_available   : in  std_logic;
     fadd_in_tag         : in  tomasulo_fpu_tag_t;
+    fadd_in_flag1       : in  unsigned32;
+    fadd_in_flag2       : in  unsigned32;
     fadd_in0            : in  unsigned32;
     fadd_in1            : in  unsigned32;
     fadd_out_available  : out std_logic;
     fadd_out_tag        : out tomasulo_fpu_tag_t;
+    fadd_out_flag1      : out unsigned32;
+    fadd_out_flag2      : out unsigned32;
     fadd_out_value      : out unsigned32;
     cdb_writable        : in  std_logic;
     cdb_writable_next   : out std_logic;
     fadd_unit_available : out std_logic);
-end entity FADD;
+end entity FADD_WITH_FLAG;
 
 
-architecture RTL of FADD is
+architecture RTL of FADD_WITH_FLAG is
   type stage1_type is record
     tag     : tomasulo_fpu_tag_t;
+    flag1   : unsigned32;
+    flag2   : unsigned32;
     avail   : std_logic;
     a_1     : unsigned32;
     na      : unsigned32;
@@ -37,6 +43,8 @@ architecture RTL of FADD is
   end record;
   type stage2_type is record
     tag     : tomasulo_fpu_tag_t;
+    flag1   : unsigned32;
+    flag2   : unsigned32;
     avail   : std_logic;
     a_2     : unsigned32;
     sign_2  : std_logic;
@@ -47,6 +55,8 @@ architecture RTL of FADD is
   end record;
   type stage3_type is record
     tag   : tomasulo_fpu_tag_t;
+    flag1 : unsigned32;
+    flag2 : unsigned32;
     avail : std_logic;
     ans   : unsigned32;
   end record;
@@ -132,12 +142,14 @@ architecture RTL of FADD is
 begin
 
   comb : process (clk,
-                   refetch,
-                   fadd_in_available,
-                   fadd_in_tag,
-                   fadd_in0,
-                   fadd_in1,
-                   cdb_writable)
+                  refetch,
+                  fadd_in_available,
+                  fadd_in_tag,
+                  fadd_in_flag1,
+                  fadd_in_flag2,
+                  fadd_in0,
+                  fadd_in1,
+                  cdb_writable)
 
     variable v : reg_type;
 
@@ -152,6 +164,8 @@ begin
 
     -- stage 1 --
     variable tag_1   : tomasulo_fpu_tag_t;
+    variable flag1_1 : unsigned32;
+    variable flag2_1 : unsigned32;
     variable avail_1 : std_logic;
     variable a, b    : unsigned32;
     variable na, nb  : unsigned32;
@@ -163,6 +177,8 @@ begin
     variable ret_a   : std_logic;
     -- stage 2 --
     variable tag_2   : tomasulo_fpu_tag_t;
+    variable flag1_2 : unsigned32;
+    variable flag2_2 : unsigned32;
     variable avail_2 : std_logic;
     variable sign_2  : std_logic;
     variable exp_2   : unsigned32;
@@ -173,6 +189,8 @@ begin
     variable ret_a_2 : std_logic;
     -- stage 3 --
     variable tag_3   : tomasulo_fpu_tag_t;
+    variable flag1_3 : unsigned32;
+    variable flag2_3 : unsigned32;
     variable avail_3 : std_logic;
     variable sign_3  : std_logic;
     variable exp_3   : unsigned32;
@@ -201,6 +219,8 @@ begin
     input1  := fadd_in0;
     input2  := fadd_in1;
     tag_1   := fadd_in_tag;
+    flag1_1 := fadd_in_flag1;
+    flag2_1 := fadd_in_flag2;
     avail_1 := fadd_in_available;
 
     if input1(30 downto 0) >= input2(30 downto 0) then
@@ -247,6 +267,8 @@ begin
       isAdd := '0';
     end if;
     s1.tag     := tag_1;
+    s1.flag1   := flag1_1;
+    s1.flag2   := flag2_1;
     s1.avail   := avail_1;
     s1.a_1     := a;
     s1.na      := na;
@@ -273,6 +295,8 @@ begin
     ----- stage 2 -----
 
     tag_2   := r.s1.tag;
+    flag1_2 := r.s1.flag1;
+    flag2_2 := r.s1.flag2;
     avail_2 := r.s1.avail;
     sign_2  := r.s1.sign_1;
     exp_2   := r.s1.exp_1;
@@ -304,6 +328,8 @@ begin
     end if;
 
     s2.tag     := tag_2;
+    s2.flag1   := flag1_2;
+    s2.flag2   := flag2_2;
     s2.avail   := avail_2;
     s2.sign_2  := sign_2;
     s2.exp_2   := exp_2;
@@ -326,6 +352,8 @@ begin
 
     ----- stage 3 -----
     tag_3   := r.s2.tag;
+    flag1_3 := r.s2.flag1;
+    flag2_3 := r.s2.flag2;
     avail_3 := r.s2.avail;
     sign_3  := r.s2.sign_2;
     exp_3   := r.s2.exp_2;
@@ -362,21 +390,21 @@ begin
     -----------------
 
 
-    if last_unit then
-      cdb_use := cdb_writable;
-    else
-      cdb_use := cdb_writable and avail_3;
-    end if;
+    cdb_use := cdb_writable and avail_3;
 
     v.cdb_use := cdb_use;
 
     if cdb_use = '1' then
       fadd_out_available <= avail_3;
       fadd_out_tag       <= tag_3;
+      fadd_out_flag1     <= flag1_3;
+      fadd_out_flag2     <= flag2_3;
       fadd_out_value     <= ans;
     else
       fadd_out_available <= '0';
       fadd_out_tag       <= (others => 'Z');
+      fadd_out_flag1     <= (others => 'Z');
+      fadd_out_flag2     <= (others => 'Z');
       fadd_out_value     <= (others => 'Z');
     end if;
 
@@ -387,8 +415,8 @@ begin
     end if;
 
     if (cdb_writable = '1' or
-        r.s1.avail  /= '1' or
-        r.s2.avail  /= '1' or
+        r.s1.avail /= '1' or
+        r.s2.avail /= '1' or
         fadd_in_available /= '1')then
       fadd_unit_available <= '1';
     else

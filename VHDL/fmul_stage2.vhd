@@ -13,22 +13,22 @@ entity FMUL_STAGE2 is
 end entity FMUL_STAGE2;
 
 architecture RTL of FMUL_STAGE2 is
-  subtype unsigned_word is unsigned(31 downto 0);
+  subtype unsigned32 is unsigned(31 downto 0);
 
-  constant nan32 : unsigned_word := (others=>'1');
-  constant zero32 : unsigned_word := (others=>'0');
-  constant minusZero : unsigned_word := x"80000000";
-  constant inf32 : unsigned_word := x"7f800000";
-  constant minusInf : unsigned_word := x"ff800000";
+  constant nan32 : unsigned32 := (others=>'1');
+  constant zero32 : unsigned32 := (others=>'0');
+  constant minusZero : unsigned32 := x"80000000";
+  constant inf32 : unsigned32 := x"7f800000";
+  constant minusInf : unsigned32 := x"ff800000";
 
-  signal a, b : unsigned_word;
+  signal a, b : unsigned32;
   signal aNaN, bNaN : std_logic;
   signal aZero, bZero : std_logic;
   signal underFlow : std_logic;
   signal aInf, bInf : std_logic;
-  signal exp : unsigned_word;
-  signal mulFrac: unsigned_word;
-  signal signedInf, signedZero : unsigned_word;
+  signal exp : unsigned32;
+  signal mulFrac: unsigned32;
+  signal signedInf, signedZero : unsigned32;
   signal ansSign: std_logic;
   signal ansExp:  unsigned (7 downto 0);
   signal ansFrac: unsigned (22 downto 0);

@@ -3,27 +3,31 @@ use IEEE.std_logic_1164.all;
 use IEEE.numeric_std.all;
 use work.kakeudon_fpu.all;
 
-entity FMUL is
-  generic (
-    last_unit : boolean);
+entity FMUL_WITH_FLAG is
   Port (
     clk                 : in  std_logic;
     refetch             : in  std_logic;
     fmul_in_available   : in  std_logic;
     fmul_in_tag         : in  tomasulo_fpu_tag_t;
-    fmul_in0            : in  unsigned (31 downto 0);
-    fmul_in1            : in  unsigned (31 downto 0);
+    fmul_in_flag1       : in  unsigned32;
+    fmul_in_flag2       : in  unsigned32;
+    fmul_in0            : in  unsigned32;
+    fmul_in1            : in  unsigned32;
     fmul_out_available  : out std_logic;
     fmul_out_tag        : out tomasulo_fpu_tag_t;
-    fmul_out_value      : out unsigned (31 downto 0);
+    fmul_out_flag1      : out unsigned32;
+    fmul_out_flag2      : out unsigned32;
+    fmul_out_value      : out unsigned32;
     cdb_writable        : in  std_logic;
     cdb_writable_next   : out std_logic;
     fmul_unit_available : out std_logic);
-end entity FMUL;
+end entity FMUL_WITH_FLAG;
 
-architecture RTL of FMUL is
+architecture RTL of FMUL_WITH_FLAG is
   signal stage1_available, stage2_available : std_logic := '0';
   signal stage1_tag, stage2_tag             : tomasulo_fpu_tag_t;
+  signal stage1_flag1, stage2_flag1         : unsigned32;
+  signal stage1_flag2, stage2_flag2         : unsigned32;
   signal cdb_use                            : std_logic;
   signal stage2_in1, stage2_in2             : unsigned32;
   signal hh_1, hl1_1, hl2_1                 : unsigned(35 downto 0);
@@ -32,9 +36,7 @@ architecture RTL of FMUL is
   signal sumExp_2                           : unsigned32;
   signal stage2_output                      : unsigned32;
   signal stage2_output_combinational        : unsigned32;
-
 begin
-
   stage1 : FMUL_STAGE1 port map(
     input1 => fmul_in0,
     input2 => fmul_in1,
@@ -51,15 +53,17 @@ begin
     sumExp => sumExp_2,
     output => stage2_output_combinational);
 
-  cdb_use             <= cdb_writable when last_unit else
-                         cdb_writable and stage2_available;
+  cdb_use             <= cdb_writable and stage2_available;
   fmul_out_available  <= stage2_available when cdb_use = '1' else
                          'Z';
-  fmul_out_value      <= stage2_output when cdb_use = '1' else
+  fmul_out_value      <= stage2_output    when cdb_use = '1' else
                          (others => 'Z');
-  fmul_out_tag        <= stage2_tag when cdb_use = '1' else
+  fmul_out_tag        <= stage2_tag       when cdb_use = '1' else
                          (others => 'Z');
-
+  fmul_out_flag1      <= stage2_flag1     when cdb_use = '1' else
+                         (others => 'Z');
+  fmul_out_flag2      <= stage2_flag2     when cdb_use = '1' else
+                         (others => 'Z');
   cdb_writable_next   <= cdb_writable and (not stage2_available);
   fmul_unit_available <= cdb_writable or
                          (not stage1_available) or
@@ -78,6 +82,8 @@ begin
         -- stage2_stall
         else
           stage2_tag       <= stage1_tag;
+          stage2_flag1     <= stage1_flag1;
+          stage2_flag2     <= stage1_flag2;
           stage2_output    <= stage2_output_combinational;
           stage2_available <= stage1_available;
         end if;
@@ -89,6 +95,8 @@ begin
         -- stage1_stall
         else
           stage1_tag       <= fmul_in_tag;
+          stage1_flag1     <= fmul_in_flag1;
+          stage1_flag2     <= fmul_in_flag2;
           stage1_available <= fmul_in_available;
 
           stage2_in1 <= fmul_in0;

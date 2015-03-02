@@ -4,49 +4,137 @@ use IEEE.numeric_std.all;
 use work.kakeudon_fpu.all;
 
 entity ITOF is
-  Port (input  : in  unsigned(31 downto 0);
-        clk : in std_logic;
-        output : out unsigned(31 downto 0));
-end entity ITOF;
+  generic (
+    last_unit : boolean := true);
+  port (
+    clk                 : in  std_logic;
+    refetch             : in  std_logic;
+    itof_in_available   : in  std_logic;
+    itof_in_tag         : in  tomasulo_fpu_tag_t;
+    itof_in             : in  unsigned32;
+    itof_out_available  : out std_logic;
+    itof_out_tag        : out tomasulo_fpu_tag_t;
+    itof_out_value      : out unsigned32;
+    cdb_writable        : in  std_logic;
+    cdb_writable_next   : out std_logic;
+    itof_unit_available : out std_logic
+  );
+end entity itof;
 
 architecture RTL of ITOF is
-  signal t: unsigned_word;
-  signal low0, high0, low, high, a, b, a1, b1, ans: unsigned_word;
-  signal sign1 : std_logic;
-  signal sign2 : std_logic;
-  signal sign3 : std_logic;
+
+  signal low, high       : unsigned32;
+  signal a1, b1          : unsigned32;
+  signal a, b            : unsigned32;
+  signal ans             : unsigned32;
+  signal i_sign_1        : unsigned32;
+  signal i_writable_1    : std_logic;
+  signal unit_avail_low  : std_logic;
+  signal unit_avail_high : std_logic;
+  signal unit_avail_hl   : std_logic;
+  signal i_avail_hl      : std_logic;
+  signal i_tag_hl        : tomasulo_fpu_tag_t;
+  signal i_sign_hl       : unsigned32;
+  signal o_avail_low     : std_logic;
+  signal o_avail_high    : std_logic;
+  signal o_tag_low       : tomasulo_fpu_tag_t;
+  signal o_tag_high      : tomasulo_fpu_tag_t;
+  signal o_sign_low      : unsigned32;
+  signal o_sign_high     : unsigned32;
+  signal o_sign_hl       : unsigned32;
+
+  signal t : unsigned32;
+
 begin
-  lowsub:  FADD port map (input1=> low,  input2=> x"cb000000", clk => clk, output=>a1);
-  highsub: FADD port map (input1=> high, input2=> x"d6800000", clk => clk, output=>b1);
-  lhadd:   FADD port map (input1=> a,    input2=> b, clk => clk, output=>ans);
+  lowsub : FADD_WITH_FLAG port map (
+    clk                 => clk,
+    refetch             => refetch,
+    fadd_in_available   => itof_in_available,
+    fadd_in_tag         => itof_in_tag,
+    fadd_in_flag1       => i_sign_1,
+    fadd_in_flag2       => (others => 'Z'),
+    fadd_in0            => low,
+    fadd_in1            => x"cb000000",
+    fadd_out_available  => o_avail_low,
+    fadd_out_tag        => o_tag_low,
+    fadd_out_flag1      => o_sign_low,
+    fadd_out_flag2      => open,
+    fadd_out_value      => a1,
+    cdb_writable        => i_writable_1,
+    cdb_writable_next   => open,
+    fadd_unit_available => unit_avail_low
+  );
+  highsub : FADD_WITH_FLAG port map (
+    clk                 => clk,
+    refetch             => refetch,
+    fadd_in_available   => itof_in_available,
+    fadd_in_tag         => itof_in_tag,
+    fadd_in_flag1       => i_sign_1,
+    fadd_in_flag2       => (others => 'Z'),
+    fadd_in0            => high,
+    fadd_in1            => x"d6800000",
+    fadd_out_available  => o_avail_high,
+    fadd_out_tag        => o_tag_high,
+    fadd_out_flag1      => o_sign_high,
+    fadd_out_flag2      => open,
+    fadd_out_value      => b1,
+    cdb_writable        => i_writable_1,
+    cdb_writable_next   => open,
+    fadd_unit_available => unit_avail_high
+  );
+  hladd : FADD_WITH_FLAG port map (
+    clk                 => clk,
+    refetch             => refetch,
+    fadd_in_available   => i_avail_hl,
+    fadd_in_tag         => i_tag_hl,
+    fadd_in_flag1       => i_sign_hl,
+    fadd_in_flag2       => (others => 'Z'),
+    fadd_in0            => a,
+    fadd_in1            => b,
+    fadd_out_available  => itof_out_available,
+    fadd_out_tag        => itof_out_tag,
+    fadd_out_flag1      => o_sign_hl,
+    fadd_out_flag2      => open,
+    fadd_out_value      => ans,
+    cdb_writable        => cdb_writable,
+    cdb_writable_next   => cdb_writable_next,
+    fadd_unit_available => unit_avail_hl
+  );
 
-  t <= input when input(31) = '0' else
-       (not input) + 1;
+  itof_unit_available <= unit_avail_low or unit_avail_hl;
+  itof_out_value      <= o_sign_hl(0) & ans(30 downto 0);
+  i_sign_1            <= (30 downto 0 => '0') & itof_in(31);
+  i_writable_1        <= unit_avail_hl;
 
-  low0  <= "000000000" & t(22 downto 0);
-  high0 <= x"000000" & t(30 downto 23);
+  t <= itof_in when itof_in(31) = '0' else
+       (not itof_in) + 1;
 
-  low  <= low0 + x"4b000000";
-  high <= high0 + x"56800000";
+  low  <= ("000000000" & t(22 downto 0)) + x"4b000000";
+  high <= (x"000000" & t(30 downto 23)) + x"56800000";
 
 
-  output <= sign3&ans(30 downto 0);
-
-  itof_proc: process(input, clk)
-    variable s1,s2: std_logic;
+  reg : process (clk,
+                  refetch,
+                  itof_in_available,
+                  itof_in_tag,
+                  itof_in,
+                  cdb_writable)
   begin
     if rising_edge(clk) then
-      s1 := sign1;
-      s2 := sign2;
+      if unit_avail_hl = '1' then
+        a         <= a1;
+        b         <= b1;
+        i_tag_hl  <= o_tag_low;
+        i_sign_hl <= o_sign_low;
 
-      sign3 <= s2;
-      sign2 <= s1;
-      sign1 <= input(31);
+        if refetch = '1' then
+          i_avail_hl <= '0';
+        else
+          i_avail_hl <= o_avail_low;
+        end if;
 
-      a <= a1;
-      b <= b1;
-
+      end if;
     end if;
   end process;
 
-end architecture RTL;
+end architecture;
