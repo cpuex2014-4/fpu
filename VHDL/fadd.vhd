@@ -173,6 +173,7 @@ begin
     variable ret_a_2 : std_logic;
     -- stage 3 --
     variable tag_3   : tomasulo_fpu_tag_t;
+    variable avail_3 : std_logic;
     variable sign_3  : std_logic;
     variable exp_3   : unsigned32;
     variable frac_3  : unsigned32;
@@ -325,6 +326,7 @@ begin
 
     ----- stage 3 -----
     tag_3   := r.s2.tag;
+    avail_3 := r.s2.avail;
     sign_3  := r.s2.sign_2;
     exp_3   := r.s2.exp_2;
     frac_3  := r.s2.frac_2;
@@ -363,14 +365,14 @@ begin
     if last_unit then
       cdb_use := cdb_writable;
     else
-      cdb_use := cdb_writable and r.s2.avail;
+      cdb_use := cdb_writable and avail_3;
     end if;
 
     v.cdb_use := cdb_use;
 
     if cdb_use = '1' then
-      fadd_out_available <= r.s2.avail;
-      fagdd_out_tag      <= tag_3;
+      fadd_out_available <= avail_3;
+      fadd_out_tag       <= tag_3;
       fadd_out_value     <= ans;
     else
       fadd_out_available <= '0';
@@ -378,7 +380,7 @@ begin
       fadd_out_value     <= (others => 'Z');
     end if;
 
-    if cdb_writable = '1' and r.s2.avail = '0' then
+    if cdb_writable = '1' and avail_3 = '0' then
       cdb_writable_next <= '1';
     else
       cdb_writable_next <= '0';

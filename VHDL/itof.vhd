@@ -52,7 +52,7 @@ begin
     fadd_in_available   => itof_in_available,
     fadd_in_tag         => itof_in_tag,
     fadd_in_flag1       => i_sign_1,
-    fadd_in_flag2       => open,
+    fadd_in_flag2       => (others => 'Z'),
     fadd_in0            => low,
     fadd_in1            => x"cb000000",
     fadd_out_available  => o_avail_low,
@@ -70,7 +70,7 @@ begin
     fadd_in_available   => itof_in_available,
     fadd_in_tag         => itof_in_tag,
     fadd_in_flag1       => i_sign_1,
-    fadd_in_flag2       => open,
+    fadd_in_flag2       => (others => 'Z'),
     fadd_in0            => high,
     fadd_in1            => x"d6800000",
     fadd_out_available  => o_avail_high,
@@ -88,7 +88,7 @@ begin
     fadd_in_available   => i_avail_hl,
     fadd_in_tag         => i_tag_hl,
     fadd_in_flag1       => i_sign_hl,
-    fadd_in_flag2       => open,
+    fadd_in_flag2       => (others => 'Z'),
     fadd_in0            => a,
     fadd_in1            => b,
     fadd_out_available  => itof_out_available,
@@ -103,7 +103,7 @@ begin
 
   itof_unit_available <= unit_avail_low or unit_avail_hl;
   itof_out_value      <= o_sign_hl(0) & ans(30 downto 0);
-  i_sign_1            <= (29 downto 0 => '0') & itof_in(31);
+  i_sign_1            <= (30 downto 0 => '0') & itof_in(31);
   i_writable_1        <= unit_avail_hl;
 
   t <= itof_in when itof_in(31) = '0' else
