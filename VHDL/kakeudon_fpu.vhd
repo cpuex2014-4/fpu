@@ -121,10 +121,22 @@ package kakeudon_fpu is
   );
   end component;
 
-
   component FTOI is
-  port (input  : in  unsigned32;
-        output : out unsigned32);
+  generic (
+    last_unit : boolean);
+  port (
+    clk                 : in  std_logic;
+    refetch             : in  std_logic;
+    ftoi_in_available   : in  std_logic;
+    ftoi_in_tag         : in  tomasulo_fpu_tag_t;
+    ftoi_in             : in  unsigned32;
+    ftoi_out_available  : out std_logic;
+    ftoi_out_tag        : out tomasulo_fpu_tag_t;
+    ftoi_out_value      : out unsigned32;
+    cdb_writable        : in  std_logic;
+    cdb_writable_next   : out std_logic;
+    ftoi_unit_available : out std_logic
+  );
   end component;
 
   component FINV is

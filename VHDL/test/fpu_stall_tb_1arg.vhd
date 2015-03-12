@@ -25,14 +25,14 @@ architecture Behavior of fpu_stall_tb1 is
   signal i_writable: std_logic;
   signal i_avail : std_logic;
 
-  file  read_file  : text open read_mode  is "/home/udon/cpuex/fpu/VHDL/test/stall_test1.in";
+  file  read_file  : text open read_mode  is "/home/udon/cpuex/fpu/VHDL/test/stall_test1_2.in";
 
   -- Please change file name
-  file  write_file : text open write_mode is "/home/udon/cpuex/fpu/VHDL/test/log/test_stall_fsqrt.out";
+  file  write_file : text open write_mode is "/home/udon/cpuex/fpu/VHDL/test/log/test_stall_ftoi.out";
 begin
 
   -- Please change port map
-  fpu_test: FSQRT
+  fpu_test: FTOI
     generic map (last_unit => true)
     port map (
       clk,    -- clk
